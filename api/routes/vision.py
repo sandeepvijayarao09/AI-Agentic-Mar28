@@ -18,7 +18,7 @@ async def identify_product(file: UploadFile = File(...)):
         b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash-lite-preview",
+            model="gemini-2.5-flash-lite",
             contents=[
                 {
                     "parts": [
