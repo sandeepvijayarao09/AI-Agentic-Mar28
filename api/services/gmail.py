@@ -80,14 +80,18 @@ def mark_as_read(message_id: str) -> dict:
 def _parse_message(msg: dict) -> dict:
     headers = {h["name"]: h["value"] for h in msg["payload"].get("headers", [])}
     body = _extract_body(msg["payload"])
+    snippet = msg.get("snippet", "")
+    # Use snippet as fallback for body (handles HTML-only emails)
+    if not body and snippet:
+        body = snippet
     return {
         "id": msg["id"],
         "thread_id": msg.get("threadId"),
         "from": headers.get("From", ""),
         "to": headers.get("To", ""),
-        "subject": headers.get("Subject", ""),
+        "subject": headers.get("Subject", snippet[:80] if not headers.get("Subject") else ""),
         "date": headers.get("Date", ""),
-        "snippet": msg.get("snippet", ""),
+        "snippet": snippet,
         "body": body,
         "labels": msg.get("labelIds", []),
     }
@@ -97,9 +101,15 @@ def _extract_body(payload: dict) -> str:
     """Recursively extract plain text body from message payload."""
     mime_type = payload.get("mimeType", "")
 
-    if mime_type == "text/plain":
+    if mime_type in ("text/plain", "text/html"):
         data = payload.get("body", {}).get("data", "")
-        return base64.urlsafe_b64decode(data + "==").decode("utf-8", errors="replace")
+        decoded = base64.urlsafe_b64decode(data + "==").decode("utf-8", errors="replace")
+        # Strip HTML tags for text extraction
+        if mime_type == "text/html":
+            import re
+            decoded = re.sub(r'<[^>]+>', ' ', decoded)
+            decoded = re.sub(r'\s+', ' ', decoded).strip()
+        return decoded
 
     if mime_type.startswith("multipart/"):
         for part in payload.get("parts", []):

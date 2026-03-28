@@ -21,13 +21,19 @@ SHOPPING_PLATFORMS = {"amazon", "walmart", "target"}
 
 
 def detect_platform(email: dict) -> Optional[str]:
-    """Detect which platform sent this email."""
+    """Detect which platform sent this email — checks sender, subject, body, AND snippet."""
     sender = email.get("from", "")
     subject = email.get("subject", "")
-    text = f"{sender} {subject}"
+    body = email.get("body", "")[:1000]
+    snippet = email.get("snippet", "")
+    text = f"{sender} {subject} {body} {snippet}"
     for platform, pattern in PLATFORM_PATTERNS.items():
         if pattern.search(text):
             return platform
+    # Fallback: check for restaurant names that imply food delivery
+    food_keywords = ["order from", "your order", "delivery to", "delivery fee", "estimated delivery"]
+    if any(kw in text.lower() for kw in food_keywords):
+        return "doordash"  # default food platform
     return None
 
 

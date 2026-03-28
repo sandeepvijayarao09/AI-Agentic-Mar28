@@ -20,12 +20,15 @@ FOOD_QUERIES = [
     'from:uber.com subject:receipt OR subject:order',
     'from:grubhub subject:order',
     'from:instacart subject:order OR subject:receipt',
+    'subject:"DoorDash order"',  # catches self-sent mock emails
+    'DoorDash order confirmed',  # broadest catch-all
 ]
 
 SHOPPING_QUERIES = [
     'from:amazon subject:order OR subject:"your order"',
     'from:walmart subject:order',
     'from:target.com subject:order',
+    'subject:"Amazon.com order confirmation"',  # catches self-sent mock emails
 ]
 
 
