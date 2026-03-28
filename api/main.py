@@ -13,6 +13,8 @@ from api.routes.chat import router as chat_router
 from api.routes.sync import router as sync_router
 from api.routes.bio import router as bio_router
 from api.routes.vision import router as vision_router
+from api.routes.history import router as history_router
+from api.routes.memory import router as memory_router
 
 
 @asynccontextmanager
@@ -43,6 +45,8 @@ app.include_router(chat_router)
 app.include_router(sync_router)
 app.include_router(bio_router)
 app.include_router(vision_router)
+app.include_router(history_router)
+app.include_router(memory_router)
 
 @app.get("/api/health")
 def health():
