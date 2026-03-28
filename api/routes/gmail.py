@@ -23,7 +23,7 @@ def authorize():
 def oauth_callback(code: str, state: str):
     """Handle OAuth callback and store token."""
     try:
-        exchange_code_for_token(code, state)
+        exchange_code_for_token(code)
         return {"status": "authenticated", "message": "Gmail connected successfully."}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
