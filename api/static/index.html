@@ -188,14 +188,28 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
 
   <!-- Memory Page -->
   <div class="page" id="page-memory">
-    <div class="page-header"><h2>Agent Memory</h2></div>
+    <div class="page-header"><h2>Agent Memory</h2><button class="btn-sm btn-blue" onclick="loadMemories()">Refresh</button></div>
     <div class="page-content">
-      <div class="add-memory">
-        <select id="mem-cat"><option value="preference">Preference</option><option value="fact">Fact</option><option value="habit">Habit</option><option value="note">Note</option></select>
-        <input id="mem-input" placeholder="Add a memory... (e.g., I love sushi)">
-        <button class="btn-sm btn-blue" onclick="addMemory()">Add</button>
+      <!-- Bio Section -->
+      <div class="settings-section" id="mem-bio-section">
+        <h3>👤 User Profile</h3>
+        <div id="mem-bio"></div>
       </div>
-      <div class="memory-grid" id="memory-grid"></div>
+      <!-- Favourites -->
+      <div class="settings-section">
+        <h3>⭐ Favourites <span id="fav-count" style="color:var(--text2);font-size:12px"></span></h3>
+        <div class="memory-grid" id="mem-favs"></div>
+      </div>
+      <!-- Food Orders -->
+      <div class="settings-section">
+        <h3>🍕 Food Orders <span id="food-count" style="color:var(--text2);font-size:12px"></span></h3>
+        <div class="memory-grid" id="mem-food"></div>
+      </div>
+      <!-- Shopping -->
+      <div class="settings-section">
+        <h3>🛒 Shopping Orders <span id="shop-count" style="color:var(--text2);font-size:12px"></span></h3>
+        <div class="memory-grid" id="mem-shop"></div>
+      </div>
     </div>
   </div>
 
@@ -322,11 +336,39 @@ async function clearHistory(){if(!confirm('Clear all chat history?'))return;awai
 
 // ── Memory ──
 async function loadMemories(){
-  try{const r=await fetch('/memory');const d=await r.json();const el=document.getElementById('memory-grid');el.innerHTML='';
-  document.getElementById('memory-count').textContent=d.length;
-  d.forEach(m=>{el.innerHTML+=`<div class="memory-card"><div class="cat">${m.category}</div><div class="text">${m.content}</div><div class="meta"><span>${m.source} · ${m.created_at.split('T')[0]||m.created_at.split(' ')[0]}</span><button class="del" onclick="delMemory(${m.id})">Delete</button></div></div>`;});}catch(e){}}
-async function addMemory(){const inp=document.getElementById('mem-input'),cat=document.getElementById('mem-cat');if(!inp.value.trim())return;await fetch('/memory',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({category:cat.value,content:inp.value.trim(),source:'manual'})});inp.value='';loadMemories();}
-async function delMemory(id){await fetch('/memory/'+id,{method:'DELETE'});loadMemories();}
+  try{
+    const r=await fetch('/memory');const d=await r.json();
+    const total=d.stats.food_orders+d.stats.shopping_orders+d.stats.favourites;
+    document.getElementById('memory-count').textContent=total;
+
+    // Bio
+    const bio=d.bio;
+    document.getElementById('mem-bio').innerHTML=bio.full_name?
+      `<div style="font-size:13px;color:#ccc;line-height:1.8"><strong>${bio.full_name}</strong>${bio.email?' · '+bio.email:''}${bio.location?' · 📍 '+bio.location:''}${bio.bio?'<br>'+bio.bio:''}</div>`
+      :'<div style="font-size:13px;color:#555">No profile set. Go to Settings to add your info.</div>';
+
+    // Favourites
+    const favs=document.getElementById('mem-favs');favs.innerHTML='';
+    document.getElementById('fav-count').textContent='('+d.favourites.length+')';
+    if(d.favourites.length===0) favs.innerHTML='<div style="color:#555;font-size:13px">No favourites yet. Sync your Gmail to auto-detect!</div>';
+    d.favourites.forEach(f=>{favs.innerHTML+=`<div class="memory-card" style="border-left-color:${f.category==='restaurant'?'var(--green)':'var(--blue)'}"><div class="cat">${f.category}</div><div class="text"><strong>${f.name}</strong>${f.platform?' · '+f.platform:''}</div><div class="meta"><span>Ordered ${f.order_count}x${f.rating?' · ⭐'+f.rating:''}</span></div></div>`;});
+
+    // Food orders
+    const food=document.getElementById('mem-food');food.innerHTML='';
+    document.getElementById('food-count').textContent='('+d.food_orders.length+')';
+    if(d.food_orders.length===0) food.innerHTML='<div style="color:#555;font-size:13px">No food orders synced yet.</div>';
+    d.food_orders.forEach(o=>{
+      const items=(o.items||[]).map(i=>i.name||i).join(', ');
+      food.innerHTML+=`<div class="memory-card" style="border-left-color:var(--green)"><div class="cat">${o.platform}</div><div class="text"><strong>${o.restaurant||'Order'}</strong>${o.total?' · $'+o.total:''}</div><div class="meta"><span>${o.date.split(' ')[0]||o.date}${items?' · '+items.substring(0,60):''}</span></div></div>`;});
+
+    // Shopping
+    const shop=document.getElementById('mem-shop');shop.innerHTML='';
+    document.getElementById('shop-count').textContent='('+d.shopping.length+')';
+    if(d.shopping.length===0) shop.innerHTML='<div style="color:#555;font-size:13px">No shopping orders synced yet.</div>';
+    d.shopping.forEach(o=>{
+      const items=(o.items||[]).map(i=>i.name||i).join(', ');
+      shop.innerHTML+=`<div class="memory-card" style="border-left-color:var(--purple)"><div class="cat">${o.platform}</div><div class="text">${o.order_number||'Order'}${o.total?' · $'+o.total:''}</div><div class="meta"><span>${o.date.split(' ')[0]||o.date}${items?' · '+items.substring(0,60):''}</span></div></div>`;});
+  }catch(e){console.error(e);}}
 
 // ── Settings ──
 async function loadSettings(){
