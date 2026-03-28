@@ -49,3 +49,7 @@ docker-compose.override.yml
 # Build artifacts
 *.pyc
 *.wasm
+node_modules/
+.next/
+second_brain.db
+.railtracks/

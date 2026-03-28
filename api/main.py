@@ -1,14 +1,31 @@
 """Agentic Second Brain — FastAPI application entry point."""
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
+from api.config import settings  # noqa — triggers env var setup
+from api.db.base import init_db
 from api.routes.gmail import router as gmail_router
+from api.routes.chat import router as chat_router
+from api.routes.sync import router as sync_router
+from api.routes.bio import router as bio_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: create DB tables
+    init_db()
+    yield
+
 
 app = FastAPI(
     title="Agentic Second Brain",
-    description="AI-powered knowledge base, task manager, and agent memory layer.",
+    description="AI-powered personal assistant — knows your orders, favourites, and life through email.",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -21,21 +38,42 @@ app.add_middleware(
 
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(gmail_router, prefix="/auth")
+app.include_router(chat_router)
+app.include_router(sync_router)
+app.include_router(bio_router)
 
-# /auth/gmail/authorize  → start OAuth
-# /auth/gmail/callback   → OAuth callback
-# /auth/gmail/status     → check auth
-# /auth/gmail/emails     → list emails
-# /auth/gmail/emails/search → search
-# /auth/gmail/emails/{id}   → single email
-# /auth/gmail/emails/send   → send email
+# Serve frontend static files if they exist
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "out")
+if os.path.exists(frontend_dir):
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+
+
+@app.get("/api/health")
+def health():
+    from api.db.base import SessionLocal
+    from api.models.food_order import FoodOrder
+    from api.models.shopping import Shopping
+    db = SessionLocal()
+    try:
+        return {
+            "status": "healthy",
+            "food_orders": db.query(FoodOrder).count(),
+            "shopping_orders": db.query(Shopping).count(),
+        }
+    finally:
+        db.close()
 
 
 @app.get("/")
 def root():
-    return {"status": "ok", "app": "Agentic Second Brain", "version": "0.1.0"}
-
-
-@app.get("/health")
-def health():
-    return {"status": "healthy"}
+    return {
+        "app": "Agentic Second Brain",
+        "version": "0.1.0",
+        "endpoints": {
+            "chat": "POST /chat",
+            "gmail_auth": "GET /auth/gmail/authorize",
+            "sync": "POST /sync/gmail",
+            "bio": "GET/PUT /bio",
+            "health": "GET /api/health",
+        },
+    }
