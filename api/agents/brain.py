@@ -76,12 +76,18 @@ SecondBrainAgent = rt.agent_node(
 
 async def chat(message: str, history: list[dict] | None = None) -> str:
     """Send a message to the Second Brain agent and get a response."""
+    # Build context with conversation history for continuity
+    context_msg = message
+    if history:
+        conv = "\n".join([f"{m['role']}: {m['content']}" for m in history[-8:]])
+        context_msg = f"Previous conversation:\n{conv}\n\nUser's latest message: {message}"
+
     with rt.Session(
-        context={"prompt": message},
+        context={"prompt": context_msg},
         save_state=False,
         timeout=60.0,
     ):
-        result = await rt.call(SecondBrainAgent, message)
+        result = await rt.call(SecondBrainAgent, context_msg)
         text = str(result)
         if text.startswith("LLMResponse(") and text.endswith(")"):
             text = text[len("LLMResponse("):-1]

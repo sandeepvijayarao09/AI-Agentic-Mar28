@@ -250,7 +250,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
 
 <script>
 // ── State ──
-let loading=false, pendingImage=null, voiceOut=false, autoVoice=true, isRec=false, recognition=null, currentSessionId=0;
+let loading=false, pendingImage=null, voiceOut=false, autoVoice=true, isRec=false, recognition=null, currentSessionId=0, chatHistory=[];
 
 // ── Navigation ──
 function showPage(name) {
@@ -264,7 +264,7 @@ function showPage(name) {
 }
 
 function newChat(){
-  currentSessionId=0;
+  currentSessionId=0; chatHistory=[];
   document.getElementById('messages-inner').innerHTML='<div class="welcome" id="welcome"><div class="emoji">🧠</div><h2>Your Agentic Second Brain</h2><p>Chat, speak, or snap a photo — I\'ll shop for you autonomously.</p><div class="suggestions"><button class="suggestion" onclick="sendSugg(this)">I\'m hungry, order me something</button><button class="suggestion" onclick="sendSugg(this)">Buy me headphones on Amazon</button><button class="suggestion" onclick="sendSugg(this)">Reorder my last purchase</button><button class="suggestion" onclick="sendSugg(this)">Sync my emails</button></div></div>';
   showPage('chat');
 }
@@ -293,9 +293,10 @@ async function send(){
   addMsg('user',text); input.value=''; loading=true; document.getElementById('send-btn').disabled=true;
   const t=addTyping();
   try{
-    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,session_id:currentSessionId,history:[]})}); const d=await r.json(); t.remove();
+    chatHistory.push({role:'user',content:text});
+    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,session_id:currentSessionId,history:chatHistory.slice(-10)})}); const d=await r.json(); t.remove();
     if(d.session_id) currentSessionId=d.session_id;
-    const resp=d.response||d.detail||'Error'; addMsg('assistant',resp); maybeSpeak(resp);
+    const resp=d.response||d.detail||'Error'; chatHistory.push({role:'assistant',content:resp}); addMsg('assistant',resp); maybeSpeak(resp);
   }catch(e){t.remove();addMsg('assistant','Error connecting.');}
   loading=false; document.getElementById('send-btn').disabled=false; document.getElementById('input').focus();
 }
