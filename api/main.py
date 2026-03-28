@@ -12,6 +12,7 @@ from api.routes.gmail import router as gmail_router
 from api.routes.chat import router as chat_router
 from api.routes.sync import router as sync_router
 from api.routes.bio import router as bio_router
+from api.routes.vision import router as vision_router
 
 
 @asynccontextmanager
@@ -41,6 +42,7 @@ app.include_router(gmail_router, prefix="/auth")
 app.include_router(chat_router)
 app.include_router(sync_router)
 app.include_router(bio_router)
+app.include_router(vision_router)
 
 @app.get("/api/health")
 def health():
