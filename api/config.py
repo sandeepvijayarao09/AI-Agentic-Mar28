@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     app_port: int = 8080
     gemini_api_key: str = ""
     database_url: str = "sqlite:///./second_brain.db"
+    unkey_root_key: str = ""
+    unkey_api_id: str = ""
 
     class Config:
         env_file = ".env"

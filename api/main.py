@@ -39,6 +39,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# ── Unkey API key verification (rate limiting + access control) ────────────────
+from api.middleware.unkey import verify_api_key
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class UnkeyMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        await verify_api_key(request)
+        return await call_next(request)
+
+if settings.unkey_root_key:
+    app.add_middleware(UnkeyMiddleware)
+
 # ── Routers ───────────────────────────────────────────────────────────────────
 app.include_router(gmail_router, prefix="/auth")
 app.include_router(chat_router)
