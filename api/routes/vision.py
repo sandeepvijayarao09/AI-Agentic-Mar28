@@ -6,33 +6,37 @@ from api.config import settings
 
 router = APIRouter(tags=["vision"])
 
-IDENTIFY_PROMPT = """You are a product identification specialist. Analyze this image carefully.
+IDENTIFY_PROMPT = """You are an Amazon shopping assistant. A user wants to BUY the product in this image.
 
-Step 1: Identify the EXACT product — brand, model name, model number, color, size if visible.
-Step 2: Look for any text, logos, branding, or design cues that reveal the specific model.
-Step 3: Consider the latest models available. If it looks like a very recent/unreleased product, identify it as the latest known model.
+Your ONLY job: identify what product this is so they can find it on Amazon.
 
-Return your answer in this EXACT format (nothing else):
-PRODUCT: [exact product name with brand and model]
-SEARCH: [Amazon search query 3-6 words to find this exact product]
+Rules:
+- Return the REAL, PURCHASABLE product name (brand + model + color)
+- NEVER say "mockup", "concept", "rendering", "prototype", or "unreleased"
+- If the product looks like an iPhone, identify the CLOSEST available iPhone model (e.g., iPhone 16 Pro, iPhone 15 Pro)
+- Always assume the user wants to BUY it — give a name that EXISTS on Amazon RIGHT NOW
+- Focus on: brand, model, color, key variant
+
+Return in this EXACT format:
+PRODUCT: [purchasable product name]
+SEARCH: [Amazon search query 3-5 words]
 
 Examples:
-PRODUCT: Apple iPhone 15 Pro Max Natural Titanium
-SEARCH: iPhone 15 Pro Max Natural Titanium
+PRODUCT: Apple iPhone 16 Pro Natural Titanium
+SEARCH: iPhone 16 Pro Natural Titanium
 
-PRODUCT: Nike Air Max 1 '86 OG Big Bubble
-SEARCH: Nike Air Max 1 86 OG
+PRODUCT: Nike Air Max 1 White Red
+SEARCH: Nike Air Max 1 White Red"""
 
-Be precise. Do NOT guess a generic name. Identify the EXACT model."""
+VERIFY_PROMPT = """The user wants to BUY this product on Amazon. First identification: "{product}"
 
-VERIFY_PROMPT = """You are a product verification agent. I identified a product from an image as: "{product}"
+Your job: return the BEST Amazon search query (3-6 words) to find this EXACT product.
 
-The user wants to buy this exact product on Amazon. Verify and refine:
-1. Is this identification specific enough to find the RIGHT product on Amazon?
-2. If the model is wrong or too generic, correct it based on visual details.
-3. Return the BEST Amazon search query (3-8 words) that will find this EXACT product as the #1 result.
-
-Return ONLY the Amazon search query, nothing else."""
+Rules:
+- The query must find a REAL product you can BUY on Amazon
+- Remove words like "mockup", "concept", "rendering" — only real product names
+- Keep brand + model + color/variant
+- Return ONLY the search query, nothing else"""
 
 
 @router.post("/identify")
