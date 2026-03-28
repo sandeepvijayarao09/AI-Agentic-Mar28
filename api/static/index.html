@@ -3,400 +3,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agentic Second Brain</title>
+<title>Second Brain</title>
 <style>
-:root { --bg: #0a0a0a; --bg2: #111; --bg3: #1a1a1a; --border: #222; --text: #ededed; --text2: #888; --blue: #2563eb; --purple: #8b5cf6; --green: #22c55e; --red: #ef4444; }
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; }
+:root{--bg:#000;--bg2:#0d0d0d;--bg3:#161616;--bg4:#1c1c1e;--border:#2c2c2e;--text:#f5f5f7;--text2:#86868b;--text3:#6e6e73;--blue:#0a84ff;--purple:#bf5af2;--green:#30d158;--red:#ff453a;--orange:#ff9f0a;--radius:12px;--radius-lg:16px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;-webkit-font-smoothing:antialiased}
 
-/* Sidebar */
-.sidebar { width: 260px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-.sidebar-header { padding: 20px; border-bottom: 1px solid var(--border); }
-.sidebar-header .logo { display: flex; align-items: center; gap: 10px; }
-.sidebar-header .logo-icon { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--blue)); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px; }
-.sidebar-header h1 { font-size: 16px; }
-.sidebar-header p { font-size: 10px; color: var(--text2); margin-top: 2px; }
-.nav { flex: 1; padding: 12px; }
-.nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: var(--text2); font-size: 14px; transition: all 0.15s; margin-bottom: 2px; }
-.nav-item:hover { background: var(--bg3); color: var(--text); }
-.nav-item.active { background: var(--blue); color: white; }
-.nav-item .icon { font-size: 18px; width: 24px; text-align: center; }
-.nav-item .badge { margin-left: auto; background: var(--blue); color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
-.sidebar-footer { padding: 16px; border-top: 1px solid var(--border); }
-.sidebar-footer .status { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
-.sidebar-footer .dot { width: 8px; height: 8px; border-radius: 50%; }
-.dot-green { background: var(--green); }
-.dot-red { background: var(--red); }
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sb-head{padding:20px 16px 16px;border-bottom:1px solid var(--border)}
+.sb-brand{display:flex;align-items:center;gap:10px}
+.sb-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--blue));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff}
+.sb-brand h1{font-size:15px;font-weight:600;letter-spacing:-0.3px}
+.sb-brand p{font-size:11px;color:var(--text3);margin-top:1px}
+.sb-new{width:100%;margin-top:12px;padding:8px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s}
+.sb-new:hover{background:var(--bg3);border-color:var(--text3)}
+.sb-nav{flex:1;padding:8px;overflow-y:auto}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:all .12s;margin-bottom:1px}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(10,132,255,0.15);color:var(--blue)}
+.nav-icon{font-size:16px;width:20px;text-align:center}
+.badge{margin-left:auto;background:var(--bg4);color:var(--text3);font-size:11px;font-weight:500;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center}
+.sb-foot{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 
-/* Main */
-.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.page{display:none;flex:1;flex-direction:column;overflow:hidden}
+.page.active{display:flex}
+
+/* Chat */
+.chat-scroll{flex:1;overflow-y:auto;padding:24px 20px}
+.chat-inner{max-width:680px;margin:0 auto}
+.welcome{text-align:center;padding-top:80px}
+.welcome-icon{font-size:48px;margin-bottom:12px}
+.welcome h2{font-size:22px;font-weight:600;letter-spacing:-0.4px;margin-bottom:4px}
+.welcome p{font-size:14px;color:var(--text3);margin-bottom:24px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.chip{padding:7px 14px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;font-weight:500}
+.chip:hover{background:var(--bg4);color:var(--text);border-color:var(--text3)}
+.msg{margin-bottom:12px;display:flex;max-width:100%}
+.msg-u{justify-content:flex-end}
+.msg-a{justify-content:flex-start}
+.bubble{max-width:75%;padding:10px 14px;border-radius:18px;font-size:14px;line-height:1.55;letter-spacing:-0.1px}
+.msg-u .bubble{background:var(--blue);color:#fff;border-bottom-right-radius:6px}
+.msg-a .bubble{background:var(--bg4);color:var(--text);border-bottom-left-radius:6px}
+.bubble a{color:#58a6ff;text-decoration:none;font-weight:500}
+.bubble a:hover{text-decoration:underline}
+.bubble strong{font-weight:600}
+.bubble img{max-width:180px;border-radius:10px;margin-top:6px;display:block}
+.bubble code{background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;font-size:12px}
+.dots{display:flex;gap:4px;padding:4px 0}
+.dots span{width:6px;height:6px;background:var(--text3);border-radius:50%;animation:b 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.15s}
+.dots span:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,80%,100%{opacity:.3}40%{opacity:1}}
+
+.input-bar{border-top:1px solid var(--border);padding:12px 20px;background:var(--bg2)}
+.input-wrap{max-width:680px;margin:0 auto;display:flex;gap:6px;align-items:center}
+.input-wrap input[type=text]{flex:1;background:var(--bg3);color:var(--text);border:1px solid var(--border);padding:10px 14px;border-radius:22px;font-size:14px;outline:none;font-family:inherit;transition:border .15s}
+.input-wrap input:focus{border-color:var(--blue)}
+.input-wrap input::placeholder{color:var(--text3)}
+.ib{width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .12s;background:var(--bg3);color:var(--text2);flex-shrink:0}
+.ib:hover{background:var(--bg4);color:var(--text)}
+.ib.active{background:var(--purple);color:#fff}
+.ib.rec{background:var(--red);color:#fff;animation:pulse 1s infinite}
+.ib.send{background:var(--blue);color:#fff}
+.ib.send:disabled{background:var(--bg4);color:var(--text3)}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(.92)}}
+.img-prev{max-width:680px;margin:4px auto;display:none;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-radius:10px}
+.img-prev img{width:36px;height:36px;object-fit:cover;border-radius:6px}
+.img-prev span{flex:1;font-size:11px;color:var(--text3)}
+.img-prev button{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px}
+input[type=file]{display:none}
 
 /* Pages */
-.page { display: none; flex: 1; flex-direction: column; overflow: hidden; }
-.page.active { display: flex; }
+.pg-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.pg-head h2{font-size:17px;font-weight:600;letter-spacing:-0.3px}
+.pg-body{flex:1;overflow-y:auto;padding:16px 20px}
+.card{background:var(--bg3);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;transition:background .12s;cursor:default}
+.card:hover{background:var(--bg4)}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.card-label{font-size:10px;text-transform:uppercase;letter-spacing:.8px;font-weight:600}
+.card-label.food{color:var(--green)}.card-label.shop{color:var(--purple)}.card-label.fav{color:var(--orange)}.card-label.user{color:var(--blue)}
+.card-text{font-size:13px;color:#ccc;line-height:1.5}
+.card-meta{font-size:10px;color:var(--text3);margin-top:6px;display:flex;justify-content:space-between}
+.card-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px}
+.card-del:hover{color:var(--red)}
+.empty{text-align:center;padding:40px 0;color:var(--text3);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px}
+.section{margin-bottom:20px}
+.section-title{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;padding-left:2px}
 
-/* ── Chat Page ── */
-.chat-messages { flex: 1; overflow-y: auto; padding: 24px; }
-.chat-inner { max-width: 720px; margin: 0 auto; }
-.welcome { text-align: center; margin-top: 60px; }
-.welcome .emoji { font-size: 56px; margin-bottom: 12px; }
-.welcome h2 { font-size: 22px; color: #ddd; margin-bottom: 6px; }
-.welcome p { color: #555; margin-bottom: 20px; font-size: 14px; }
-.suggestions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-.suggestion { padding: 8px 14px; border-radius: 20px; background: var(--bg3); border: 1px solid var(--border); color: #aaa; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-.suggestion:hover { background: #222; border-color: #444; color: #ddd; }
-.msg { margin-bottom: 14px; display: flex; }
-.msg-user { justify-content: flex-end; }
-.msg-assistant { justify-content: flex-start; }
-.msg-bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.6; }
-.msg-user .msg-bubble { background: var(--blue); color: white; }
-.msg-assistant .msg-bubble { background: var(--bg3); color: #e5e5e5; }
-.msg-bubble a { color: #60a5fa; text-decoration: underline; }
-.msg-bubble strong { font-weight: 600; }
-.msg-bubble img { max-width: 180px; border-radius: 8px; margin-top: 6px; }
-.typing { display: flex; gap: 4px; }
-.typing span { width: 7px; height: 7px; background: #555; border-radius: 50%; animation: bounce 1.4s infinite; }
-.typing span:nth-child(2) { animation-delay: 0.15s; }
-.typing span:nth-child(3) { animation-delay: 0.3s; }
-@keyframes bounce { 0%,80%,100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
+/* Settings */
+.s-group{background:var(--bg3);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden}
+.s-group h3{font-size:12px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:12px 14px 4px}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.s-row:last-child{border:none}
+.s-row label{font-size:13px;color:var(--text2)}
+.s-row input{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:7px 10px;border-radius:8px;font-size:13px;width:240px;outline:none;font-family:inherit}
+.s-row input:focus{border-color:var(--blue)}
+.s-val{font-size:13px;font-weight:500}
+.toggle{width:42px;height:24px;border-radius:12px;background:var(--bg);cursor:pointer;position:relative;border:none;transition:background .2s}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';width:18px;height:18px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:21px}
+.btn{padding:7px 16px;border-radius:8px;border:none;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .12s}
+.btn-b{background:var(--blue);color:#fff}.btn-b:hover{opacity:.85}
+.btn-r{background:rgba(255,69,58,.15);color:var(--red)}.btn-r:hover{background:rgba(255,69,58,.25)}
+.btn-g{background:var(--bg4);color:var(--text2)}.btn-g:hover{background:var(--border)}
 
-.chat-input { border-top: 1px solid var(--border); padding: 14px; background: var(--bg2); }
-.chat-input-inner { max-width: 720px; margin: 0 auto; display: flex; gap: 8px; align-items: center; }
-.chat-input input { flex: 1; background: var(--bg3); color: white; border: 1px solid var(--border); padding: 11px 14px; border-radius: 10px; font-size: 14px; outline: none; }
-.chat-input input:focus { border-color: var(--blue); }
-.chat-input input::placeholder { color: #444; }
-.ibtn { width: 40px; height: 40px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.15s; background: var(--bg3); color: #aaa; }
-.ibtn:hover { background: #333; color: white; }
-.ibtn.active { background: var(--purple); color: white; }
-.ibtn.recording { background: var(--red); color: white; animation: pulse 1s infinite; }
-.ibtn.send { background: var(--blue); color: white; }
-.ibtn.send:disabled { background: #333; }
-@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.6; } }
-.img-bar { max-width: 720px; margin: 6px auto; display: none; align-items: center; gap: 8px; padding: 6px 10px; background: var(--bg3); border-radius: 10px; font-size: 12px; color: #888; }
-.img-bar img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; }
-.img-bar .x { background: none; border: none; color: #666; cursor: pointer; font-size: 16px; margin-left: auto; }
-
-/* ── History Page ── */
-.page-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.page-header h2 { font-size: 18px; }
-.page-content { flex: 1; overflow-y: auto; padding: 20px 24px; }
-.history-item { padding: 12px 16px; background: var(--bg3); border-radius: 10px; margin-bottom: 8px; }
-.history-item .role { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.history-item .role.user { color: var(--blue); }
-.history-item .role.assistant { color: var(--purple); }
-.history-item .text { font-size: 13px; line-height: 1.5; color: #ccc; }
-.history-item .time { font-size: 10px; color: #555; margin-top: 4px; }
-
-/* ── Memory Page ── */
-.memory-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.memory-card { padding: 14px; background: var(--bg3); border-radius: 10px; border-left: 3px solid var(--purple); }
-.memory-card .cat { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--purple); margin-bottom: 6px; }
-.memory-card .text { font-size: 13px; line-height: 1.5; color: #ccc; }
-.memory-card .meta { font-size: 10px; color: #555; margin-top: 8px; display: flex; justify-content: space-between; }
-.memory-card .del { background: none; border: none; color: #555; cursor: pointer; font-size: 12px; }
-.memory-card .del:hover { color: var(--red); }
-.add-memory { display: flex; gap: 8px; margin-bottom: 16px; }
-.add-memory input { flex: 1; background: var(--bg3); color: white; border: 1px solid var(--border); padding: 10px 14px; border-radius: 10px; font-size: 13px; outline: none; }
-.add-memory select { background: var(--bg3); color: #aaa; border: 1px solid var(--border); padding: 10px; border-radius: 10px; font-size: 13px; outline: none; }
-
-/* ── Settings Page ── */
-.settings-section { background: var(--bg3); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
-.settings-section h3 { font-size: 14px; margin-bottom: 12px; color: #ddd; }
-.setting-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
-.setting-row:last-child { border: none; }
-.setting-row label { font-size: 13px; color: #aaa; }
-.setting-row input { background: var(--bg); color: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 13px; width: 280px; outline: none; }
-.toggle { width: 44px; height: 24px; border-radius: 12px; background: #333; cursor: pointer; position: relative; transition: background 0.2s; border: none; }
-.toggle.on { background: var(--blue); }
-.toggle::after { content: ''; width: 18px; height: 18px; border-radius: 50%; background: white; position: absolute; top: 3px; left: 3px; transition: left 0.2s; }
-.toggle.on::after { left: 23px; }
-.btn-sm { padding: 8px 16px; border-radius: 8px; border: none; font-size: 13px; cursor: pointer; }
-.btn-blue { background: var(--blue); color: white; }
-.btn-red { background: var(--red); color: white; }
-.btn-gray { background: #333; color: #aaa; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar { display: none; }
-  body { flex-direction: column; }
-}
+@media(max-width:768px){.sidebar{display:none}}
 </style>
 </head>
 <body>
-
-<!-- Sidebar -->
 <div class="sidebar">
-  <div class="sidebar-header">
-    <div class="logo">
-      <div class="logo-icon">SB</div>
-      <div>
-        <h1>Second Brain</h1>
-        <p>v0.1.0</p>
-      </div>
-    </div>
+  <div class="sb-head">
+    <div class="sb-brand"><div class="sb-icon">SB</div><div><h1>Second Brain</h1><p>AI Personal Assistant</p></div></div>
+    <button class="sb-new" onclick="newChat()">+ New Chat</button>
   </div>
-  <div class="nav">
-    <div class="nav-item" onclick="newChat()" style="border:1px dashed #444;margin-bottom:8px"><span class="icon">✨</span> New Chat</div>
-    <div class="nav-item active" onclick="showPage('chat')"><span class="icon">💬</span> Chat</div>
-    <div class="nav-item" onclick="showPage('history')"><span class="icon">📜</span> History <span class="badge" id="history-count">0</span></div>
-    <div class="nav-item" onclick="showPage('memory')"><span class="icon">🧠</span> Memory <span class="badge" id="memory-count">0</span></div>
-    <div class="nav-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Settings</div>
+  <div class="sb-nav">
+    <div class="nav-item active" onclick="go('chat')"><span class="nav-icon">💬</span>Chat</div>
+    <div class="nav-item" onclick="go('history')"><span class="nav-icon">🕐</span>History<span class="badge" id="b-hist">0</span></div>
+    <div class="nav-item" onclick="go('memory')"><span class="nav-icon">🧠</span>Memory<span class="badge" id="b-mem">0</span></div>
+    <div class="nav-item" onclick="go('settings')"><span class="nav-icon">⚙️</span>Settings</div>
   </div>
-  <div class="sidebar-footer">
-    <div class="status"><span class="dot dot-green" id="status-dot"></span> <span id="status-text">Connected</span></div>
-  </div>
+  <div class="sb-foot"><span class="dot" id="sd"></span><span id="st">Connected</span></div>
 </div>
-
-<!-- Main Content -->
 <div class="main">
-
-  <!-- Chat Page -->
-  <div class="page active" id="page-chat">
-    <div class="chat-messages" id="messages">
-      <div class="chat-inner" id="messages-inner">
-        <div class="welcome" id="welcome">
-          <div class="emoji">🧠</div>
-          <h2>Your Agentic Second Brain</h2>
-          <p>Chat, speak, or snap a photo — I'll shop for you autonomously.</p>
-          <div class="suggestions">
-            <button class="suggestion" onclick="sendSugg(this)">What are my favourite restaurants?</button>
-            <button class="suggestion" onclick="sendSugg(this)">Order me pizza from DoorDash</button>
-            <button class="suggestion" onclick="sendSugg(this)">Buy me headphones on Amazon</button>
-            <button class="suggestion" onclick="sendSugg(this)">Sync my emails</button>
-            <button class="suggestion" onclick="sendSugg(this)">My name is Sandeep, I live in Boston</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="img-bar" id="img-bar"><img id="img-thumb"><span id="img-info">Image attached</span><button class="x" onclick="clearImg()">&times;</button></div>
-    <div class="chat-input">
-      <div class="chat-input-inner">
-        <button class="ibtn" onclick="document.getElementById('img-input').click()" title="Upload image">📷</button>
-        <input type="file" id="img-input" accept="image/*" style="display:none" onchange="handleImg(this)">
-        <button class="ibtn" id="mic" onclick="toggleMic()" title="Voice input">🎤</button>
-        <input id="input" placeholder="Chat, speak, or upload a photo..." onkeydown="if(event.key==='Enter')send()">
-        <button class="ibtn" id="speaker" onclick="toggleSpeaker()" title="Voice output">🔊</button>
-        <button class="ibtn send" id="send-btn" onclick="send()">➤</button>
-      </div>
-    </div>
+  <!-- CHAT -->
+  <div class="page active" id="p-chat">
+    <div class="chat-scroll" id="cs"><div class="chat-inner" id="ci">
+      <div class="welcome" id="wc"><div class="welcome-icon">🧠</div><h2>Your Second Brain</h2><p>Chat, speak, or snap a photo. I know your orders and favourites.</p>
+      <div class="chips">
+        <button class="chip" onclick="q(this)">I'm hungry, suggest something</button>
+        <button class="chip" onclick="q(this)">Reorder my white shirt</button>
+        <button class="chip" onclick="q(this)">Buy me AirPods on Amazon</button>
+        <button class="chip" onclick="q(this)">What are my favourites?</button>
+        <button class="chip" onclick="q(this)">Sync my emails</button>
+      </div></div>
+    </div></div>
+    <div class="img-prev" id="ip"><img id="it"><span id="ii"></span><button onclick="ci_()">✕</button></div>
+    <div class="input-bar"><div class="input-wrap">
+      <button class="ib" onclick="$('fi').click()" title="Photo">📷</button><input type="file" id="fi" accept="image/*" onchange="hi(this)">
+      <button class="ib" id="mic" onclick="tm()" title="Voice">🎤</button>
+      <input type="text" id="inp" placeholder="Message Second Brain..." onkeydown="if(event.key==='Enter')s()">
+      <button class="ib" id="spk" onclick="ts()" title="Speaker">🔊</button>
+      <button class="ib send" id="sb" onclick="s()">↑</button>
+    </div></div>
   </div>
-
-  <!-- History Page -->
-  <div class="page" id="page-history">
-    <div class="page-header"><h2>Chat History</h2><button class="btn-sm btn-red" onclick="clearHistory()">Clear All</button></div>
-    <div class="page-content" id="history-list"></div>
+  <!-- HISTORY -->
+  <div class="page" id="p-history">
+    <div class="pg-head"><h2>Chat History</h2><button class="btn btn-r" onclick="ch()">Clear All</button></div>
+    <div class="pg-body" id="hl"></div>
   </div>
-
-  <!-- Memory Page -->
-  <div class="page" id="page-memory">
-    <div class="page-header"><h2>Agent Memory</h2><button class="btn-sm btn-blue" onclick="loadMemories()">Refresh</button></div>
-    <div class="page-content">
-      <!-- Bio Section -->
-      <div class="settings-section" id="mem-bio-section">
-        <h3>👤 User Profile</h3>
-        <div id="mem-bio"></div>
+  <!-- MEMORY -->
+  <div class="page" id="p-memory">
+    <div class="pg-head"><h2>Memory</h2><button class="btn btn-b" onclick="lm()">Refresh</button></div>
+    <div class="pg-body" id="ml"></div>
+  </div>
+  <!-- SETTINGS -->
+  <div class="page" id="p-settings">
+    <div class="pg-head"><h2>Settings</h2></div>
+    <div class="pg-body">
+      <div class="s-group"><h3>Profile</h3>
+        <div class="s-row"><label>Name</label><input id="sn" placeholder="Your name"></div>
+        <div class="s-row"><label>Email</label><input id="se" placeholder="email@example.com"></div>
+        <div class="s-row"><label>Location</label><input id="sl" placeholder="City, State"></div>
+        <div class="s-row"><label>Bio</label><input id="sbi" placeholder="About you"></div>
+        <div class="s-row"><label></label><button class="btn btn-b" onclick="sb_()">Save</button></div>
       </div>
-      <!-- Favourites -->
-      <div class="settings-section">
-        <h3>⭐ Favourites <span id="fav-count" style="color:var(--text2);font-size:12px"></span></h3>
-        <div class="memory-grid" id="mem-favs"></div>
+      <div class="s-group"><h3>Voice</h3>
+        <div class="s-row"><label>Always speak replies</label><button class="toggle" id="vt" onclick="tv(this)"></button></div>
+        <div class="s-row"><label>Auto-speak on mic input</label><button class="toggle on" id="avt" onclick="tav(this)"></button></div>
       </div>
-      <!-- Food Orders -->
-      <div class="settings-section">
-        <h3>🍕 Food Orders <span id="food-count" style="color:var(--text2);font-size:12px"></span></h3>
-        <div class="memory-grid" id="mem-food"></div>
+      <div class="s-group"><h3>Gmail</h3>
+        <div class="s-row"><label>Status</label><span class="s-val" id="gs" style="color:var(--text3)">Checking...</span></div>
+        <div class="s-row"><label></label><button class="btn btn-b" onclick="location.href='/auth/gmail/authorize'">Connect Gmail</button></div>
+        <div class="s-row"><label></label><button class="btn btn-g" onclick="sy()">Sync Orders Now</button></div>
       </div>
-      <!-- Shopping -->
-      <div class="settings-section">
-        <h3>🛒 Shopping Orders <span id="shop-count" style="color:var(--text2);font-size:12px"></span></h3>
-        <div class="memory-grid" id="mem-shop"></div>
+      <div class="s-group"><h3>Data</h3>
+        <div class="s-row"><label>Food Orders</label><span class="s-val" id="df">0</span></div>
+        <div class="s-row"><label>Shopping Orders</label><span class="s-val" id="ds">0</span></div>
+        <div class="s-row"><label>Favourites</label><span class="s-val" id="dv">0</span></div>
       </div>
     </div>
   </div>
-
-  <!-- Settings Page -->
-  <div class="page" id="page-settings">
-    <div class="page-header"><h2>Settings</h2></div>
-    <div class="page-content">
-      <div class="settings-section">
-        <h3>Profile</h3>
-        <div class="setting-row"><label>Full Name</label><input id="set-name" placeholder="Your name"></div>
-        <div class="setting-row"><label>Email</label><input id="set-email" placeholder="you@email.com"></div>
-        <div class="setting-row"><label>Location</label><input id="set-location" placeholder="City, State"></div>
-        <div class="setting-row"><label>Bio</label><input id="set-bio" placeholder="Tell the agent about yourself"></div>
-        <div class="setting-row"><label></label><button class="btn-sm btn-blue" onclick="saveBio()">Save Profile</button></div>
-      </div>
-      <div class="settings-section">
-        <h3>Voice</h3>
-        <div class="setting-row"><label>Voice Output</label><button class="toggle" id="voice-toggle" onclick="toggleVoiceSetting(this)"></button></div>
-        <div class="setting-row"><label>Auto-reply with voice when using mic</label><button class="toggle on" id="auto-voice-toggle" onclick="toggleAutoVoice(this)"></button></div>
-      </div>
-      <div class="settings-section">
-        <h3>Gmail</h3>
-        <div class="setting-row"><label>Gmail Status</label><span id="gmail-status" style="color:#888;font-size:13px">Checking...</span></div>
-        <div class="setting-row"><label></label><button class="btn-sm btn-blue" onclick="window.location.href='/auth/gmail/authorize'">Connect Gmail</button></div>
-        <div class="setting-row"><label></label><button class="btn-sm btn-gray" onclick="syncGmail()">Sync Orders Now</button></div>
-      </div>
-      <div class="settings-section">
-        <h3>Data</h3>
-        <div class="setting-row"><label>Food Orders</label><span id="stat-food" style="color:#888;font-size:13px">0</span></div>
-        <div class="setting-row"><label>Shopping Orders</label><span id="stat-shop" style="color:#888;font-size:13px">0</span></div>
-        <div class="setting-row"><label>Favourites</label><span id="stat-fav" style="color:#888;font-size:13px">0</span></div>
-      </div>
-    </div>
-  </div>
-
 </div>
-
 <script>
-// ── State ──
-let loading=false, pendingImage=null, voiceOut=false, autoVoice=true, isRec=false, recognition=null, currentSessionId=0, chatHistory=[];
+const $=id=>document.getElementById(id);
+let ld=false,img=null,vo=false,av=true,rc=false,rg=null,sid=0,hist=[];
 
-// ── Navigation ──
-function showPage(name) {
+function go(n){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(n=>{ if(n.textContent.toLowerCase().includes(name)) n.classList.add('active'); });
-  if(name==='history') loadHistory();
-  if(name==='memory') loadMemories();
-  if(name==='settings') loadSettings();
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  $('p-'+n).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(i=>{if(i.textContent.toLowerCase().includes(n))i.classList.add('active')});
+  if(n==='history')lh();if(n==='memory')lm();if(n==='settings')ls();
 }
+function newChat(){sid=0;hist=[];$('ci').innerHTML='<div class="welcome" id="wc"><div class="welcome-icon">🧠</div><h2>Your Second Brain</h2><p>Chat, speak, or snap a photo.</p><div class="chips"><button class="chip" onclick="q(this)">I\'m hungry, suggest something</button><button class="chip" onclick="q(this)">Reorder my white shirt</button><button class="chip" onclick="q(this)">Buy me AirPods on Amazon</button><button class="chip" onclick="q(this)">Sync my emails</button></div></div>';go('chat')}
+function q(e){$('inp').value=e.textContent;s()}
 
-function newChat(){
-  currentSessionId=0; chatHistory=[];
-  document.getElementById('messages-inner').innerHTML='<div class="welcome" id="welcome"><div class="emoji">🧠</div><h2>Your Agentic Second Brain</h2><p>Chat, speak, or snap a photo — I\'ll shop for you autonomously.</p><div class="suggestions"><button class="suggestion" onclick="sendSugg(this)">I\'m hungry, order me something</button><button class="suggestion" onclick="sendSugg(this)">Buy me headphones on Amazon</button><button class="suggestion" onclick="sendSugg(this)">Reorder my last purchase</button><button class="suggestion" onclick="sendSugg(this)">Sync my emails</button></div></div>';
-  showPage('chat');
-}
-// ── Chat ──
-function sendSugg(el){document.getElementById('input').value=el.textContent;send();}
-async function send(){
-  const input=document.getElementById('input'), text=input.value.trim();
-  if((!text&&!pendingImage)||loading)return;
-  const w=document.getElementById('welcome'); if(w)w.remove();
-  if(pendingImage){
-    addMsg('user',(text||'Find this on Amazon')+'<br><img src="'+document.getElementById('img-thumb').src+'">');
-    input.value=''; loading=true; const t=addTyping();
-    try{
-      const fd=new FormData(); fd.append('file',pendingImage);
-      const vRes=await fetch('/identify',{method:'POST',body:fd}); const vData=await vRes.json(); t.remove();
-      const productName=vData.identified_product||'product';
-      const amazonUrl=vData.amazon_search_url||('https://www.amazon.com/s?k='+encodeURIComponent(productName));
-      addMsg('assistant','**Identified:** '+productName+'\n\nSearching Amazon...\n\n[Search on Amazon]('+amazonUrl+')');
-      maybeSpeak('I identified '+productName+'. Let me add it to your Amazon cart.');
-      const r2=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Buy me '+productName+' on Amazon',session_id:currentSessionId,history:[]})}); const d2=await r2.json();
-      if(d2.session_id) currentSessionId=d2.session_id;
-      addMsg('assistant',d2.response); maybeSpeak(d2.response);
-    }catch(e){t.remove();addMsg('assistant','Error processing image.');}
-    clearImg(); loading=false; return;
-  }
-  addMsg('user',text); input.value=''; loading=true; document.getElementById('send-btn').disabled=true;
-  const t=addTyping();
-  try{
-    chatHistory.push({role:'user',content:text});
-    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,session_id:currentSessionId,history:chatHistory.slice(-10)})}); const d=await r.json(); t.remove();
-    if(d.session_id) currentSessionId=d.session_id;
-    const resp=d.response||d.detail||'Error'; chatHistory.push({role:'assistant',content:resp}); addMsg('assistant',resp); maybeSpeak(resp);
-  }catch(e){t.remove();addMsg('assistant','Error connecting.');}
-  loading=false; document.getElementById('send-btn').disabled=false; document.getElementById('input').focus();
-}
-function addMsg(role,content){
-  const d=document.createElement('div'); d.className='msg msg-'+role;
-  const b=document.createElement('div'); b.className='msg-bubble';
-  b.innerHTML=content.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code style="background:#333;padding:2px 6px;border-radius:4px">$1</code>').replace(/\n/g,'<br>');
-  d.appendChild(b); document.getElementById('messages-inner').appendChild(d);
-  document.getElementById('messages').scrollTop=document.getElementById('messages').scrollHeight;
-}
-function addTyping(){const d=document.createElement('div');d.className='msg msg-assistant';d.innerHTML='<div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>';document.getElementById('messages-inner').appendChild(d);document.getElementById('messages').scrollTop=document.getElementById('messages').scrollHeight;return d;}
-
-// ── Voice ──
+// Send
 let usedMic=false;
-function toggleMic(){
-  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Use Chrome for voice.');return;}
-  const btn=document.getElementById('mic');
-  if(isRec){recognition.stop();return;}
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  recognition=new SR(); recognition.continuous=false; recognition.interimResults=true; recognition.lang='en-US';
-  recognition.onstart=()=>{isRec=true;btn.classList.add('recording');usedMic=true;};
-  recognition.onend=()=>{isRec=false;btn.classList.remove('recording');};
-  recognition.onresult=(e)=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;document.getElementById('input').value=t;if(e.results[0].isFinal){recognition.stop();send();}};
-  recognition.onerror=()=>{isRec=false;btn.classList.remove('recording');};
-  recognition.start();
-}
-function toggleSpeaker(){voiceOut=!voiceOut;document.getElementById('speaker').classList.toggle('active',voiceOut);}
-function maybeSpeak(text){
-  if((!voiceOut&&!(autoVoice&&usedMic))||!('speechSynthesis' in window))return;
-  usedMic=false;
-  const clean=text.replace(/\*\*/g,'').replace(/\[(.+?)\]\(.+?\)/g,'$1').replace(/<[^>]+>/g,'').substring(0,500);
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(clean); u.rate=1.1; speechSynthesis.speak(u);
-}
-function toggleVoiceSetting(el){voiceOut=!voiceOut;el.classList.toggle('on',voiceOut);document.getElementById('speaker').classList.toggle('active',voiceOut);}
-function toggleAutoVoice(el){autoVoice=!autoVoice;el.classList.toggle('on',autoVoice);}
-
-// ── Image ──
-function handleImg(el){const f=el.files[0];if(!f)return;pendingImage=f;const r=new FileReader();r.onload=(e)=>{document.getElementById('img-thumb').src=e.target.result;document.getElementById('img-info').textContent=f.name;document.getElementById('img-bar').style.display='flex';};r.readAsDataURL(f);}
-function clearImg(){pendingImage=null;document.getElementById('img-bar').style.display='none';document.getElementById('img-input').value='';}
-
-// ── History ──
-async function loadHistory(){
-  try{const r=await fetch('/history/sessions');const d=await r.json();const el=document.getElementById('history-list');el.innerHTML='';
-  document.getElementById('history-count').textContent=d.length;
-  if(d.length===0){el.innerHTML='<div style="color:#555;text-align:center;margin-top:40px">No chat sessions yet. Start chatting!</div>';return;}
-  d.forEach(s=>{el.innerHTML+=`<div class="history-item" style="cursor:pointer" onclick="loadSession(${s.id})"><div class="role user" style="display:flex;justify-content:space-between"><span>${s.title}</span><button class="del" onclick="event.stopPropagation();deleteSession(${s.id})" style="background:none;border:none;color:#555;cursor:pointer">🗑️</button></div><div class="text">${s.preview}</div><div class="time">${s.message_count} messages · ${s.updated_at}</div></div>`;});}catch(e){}}
-async function loadSession(id){
-  try{const r=await fetch('/history/sessions/'+id);const d=await r.json();const el=document.getElementById('history-list');
-  el.innerHTML='<div style="margin-bottom:12px"><button class="btn-sm btn-gray" onclick="loadHistory()">← Back to sessions</button></div>';
-  d.forEach(m=>{el.innerHTML+=`<div class="history-item"><div class="role ${m.role}">${m.role}</div><div class="text">${m.content.substring(0,300)}</div><div class="time">${m.created_at}</div></div>`;});}catch(e){}}
-async function deleteSession(id){if(!confirm('Delete this chat?'))return;await fetch('/history/sessions/'+id,{method:'DELETE'});loadHistory();}
-async function clearHistory(){if(!confirm('Clear ALL chat history?'))return;await fetch('/history',{method:'DELETE'});loadHistory();}
-
-// ── Memory ──
-async function loadMemories(){
+async function s(){
+  const t=$('inp').value.trim();
+  if((!t&&!img)||ld)return;
+  const w=$('wc');if(w)w.remove();
+  if(img){
+    am('u',(t||'Find this on Amazon')+'<br><img src="'+$('it').src+'">');
+    $('inp').value='';ld=true;const tp=at();
+    try{
+      const fd=new FormData();fd.append('file',img);
+      const r=await(await fetch('/identify',{method:'POST',body:fd})).json();tp.remove();
+      const pn=r.identified_product||'product',au=r.amazon_search_url||('https://www.amazon.com/s?k='+encodeURIComponent(pn));
+      am('a','**Identified:** '+pn+'\n\n[Buy on Amazon]('+au+')');
+      sp('I identified '+pn+'. Opening Amazon.');
+      const r2=await(await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Buy me '+pn+' on Amazon',session_id:sid,history:hist.slice(-10)})})).json();
+      if(r2.session_id)sid=r2.session_id;
+      am('a',r2.response);sp(r2.response);
+    }catch(e){tp.remove();am('a','Error processing image.');}
+    ci_();ld=false;return;
+  }
+  am('u',t);$('inp').value='';ld=true;$('sb').disabled=true;
+  hist.push({role:'user',content:t});const tp=at();
   try{
-    const r=await fetch('/memory');const d=await r.json();
-    const total=d.stats.food_orders+d.stats.shopping_orders+d.stats.favourites;
-    document.getElementById('memory-count').textContent=total;
+    const r=await(await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,session_id:sid,history:hist.slice(-10)})})).json();
+    tp.remove();if(r.session_id)sid=r.session_id;
+    const rp=r.response||r.detail||'Error';hist.push({role:'assistant',content:rp});am('a',rp);sp(rp);
+  }catch(e){tp.remove();am('a','Connection error.');}
+  ld=false;$('sb').disabled=false;$('inp').focus();
+}
+function am(r,c){
+  const d=document.createElement('div');d.className='msg msg-'+r;
+  const b=document.createElement('div');b.className='bubble';
+  b.innerHTML=c.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\[(.+?)\]\((.+?)\)/g,'<a href="$2" target="_blank">$1</a>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\n/g,'<br>');
+  d.appendChild(b);$('ci').appendChild(d);$('cs').scrollTop=$('cs').scrollHeight;
+}
+function at(){const d=document.createElement('div');d.className='msg msg-a';d.innerHTML='<div class="bubble"><div class="dots"><span></span><span></span><span></span></div></div>';$('ci').appendChild(d);$('cs').scrollTop=$('cs').scrollHeight;return d}
 
-    // Bio
-    const bio=d.bio;
-    document.getElementById('mem-bio').innerHTML=bio.full_name?
-      `<div style="font-size:13px;color:#ccc;line-height:1.8"><strong>${bio.full_name}</strong>${bio.email?' · '+bio.email:''}${bio.location?' · 📍 '+bio.location:''}${bio.bio?'<br>'+bio.bio:''}</div>`
-      :'<div style="font-size:13px;color:#555">No profile set. Go to Settings to add your info.</div>';
+// Voice
+function tm(){
+  if(!('webkitSpeechRecognition' in window||'SpeechRecognition' in window)){alert('Use Chrome for voice.');return}
+  if(rc){rg.stop();return}
+  const S=window.SpeechRecognition||window.webkitSpeechRecognition;rg=new S();rg.continuous=false;rg.interimResults=true;rg.lang='en-US';
+  rg.onstart=()=>{rc=true;$('mic').classList.add('rec');usedMic=true};
+  rg.onend=()=>{rc=false;$('mic').classList.remove('rec')};
+  rg.onresult=e=>{let t='';for(let i=0;i<e.results.length;i++)t+=e.results[i][0].transcript;$('inp').value=t;if(e.results[0].isFinal){rg.stop();s()}};
+  rg.onerror=()=>{rc=false;$('mic').classList.remove('rec')};rg.start();
+}
+function ts(){vo=!vo;$('spk').classList.toggle('active',vo)}
+function sp(t){
+  if((!vo&&!(av&&usedMic))||!('speechSynthesis' in window))return;usedMic=false;
+  const c=t.replace(/\*\*/g,'').replace(/\[(.+?)\]\(.+?\)/g,'$1').replace(/<[^>]+>/g,'').substring(0,400);
+  speechSynthesis.cancel();speechSynthesis.speak(new SpeechSynthesisUtterance(c));
+}
+function tv(e){vo=!vo;e.classList.toggle('on',vo);$('spk').classList.toggle('active',vo)}
+function tav(e){av=!av;e.classList.toggle('on',av)}
 
-    // Favourites
-    const favs=document.getElementById('mem-favs');favs.innerHTML='';
-    document.getElementById('fav-count').textContent='('+d.favourites.length+')';
-    if(d.favourites.length===0) favs.innerHTML='<div style="color:#555;font-size:13px">No favourites yet. Sync your Gmail to auto-detect!</div>';
-    d.favourites.forEach(f=>{favs.innerHTML+=`<div class="memory-card" style="border-left-color:${f.category==='restaurant'?'var(--green)':'var(--blue)'}"><div class="cat">${f.category}</div><div class="text"><strong>${f.name}</strong>${f.platform?' · '+f.platform:''}</div><div class="meta"><span>Ordered ${f.order_count}x${f.rating?' · ⭐'+f.rating:''}</span></div></div>`;});
+// Image
+function hi(e){const f=e.files[0];if(!f)return;img=f;const r=new FileReader();r.onload=ev=>{$('it').src=ev.target.result;$('ii').textContent=f.name;$('ip').style.display='flex'};r.readAsDataURL(f)}
+function ci_(){img=null;$('ip').style.display='none';$('fi').value=''}
 
-    // Food orders
-    const food=document.getElementById('mem-food');food.innerHTML='';
-    document.getElementById('food-count').textContent='('+d.food_orders.length+')';
-    if(d.food_orders.length===0) food.innerHTML='<div style="color:#555;font-size:13px">No food orders synced yet.</div>';
-    d.food_orders.forEach(o=>{
-      const items=(o.items||[]).map(i=>i.name||i).join(', ');
-      food.innerHTML+=`<div class="memory-card" style="border-left-color:var(--green)"><div class="cat">${o.platform}</div><div class="text"><strong>${o.restaurant||'Order'}</strong>${o.total?' · $'+o.total:''}</div><div class="meta"><span>${o.date.split(' ')[0]||o.date}${items?' · '+items.substring(0,60):''}</span></div></div>`;});
+// History
+async function lh(){
+  try{const d=await(await fetch('/history/sessions')).json();$('b-hist').textContent=d.length;const el=$('hl');
+  if(!d.length){el.innerHTML='<div class="empty">No conversations yet</div>';return}
+  el.innerHTML=d.map(s=>`<div class="card" onclick="ls2(${s.id})"><div class="card-head"><span class="card-label" style="color:var(--blue)">${s.title.substring(0,40)}</span><button class="card-del" onclick="event.stopPropagation();ds(${s.id})">Delete</button></div><div class="card-text">${s.preview.substring(0,100)}</div><div class="card-meta"><span>${s.message_count} messages</span><span>${s.updated_at.split('.')[0]}</span></div></div>`).join('')}catch(e){}}
+async function ls2(id){
+  try{const d=await(await fetch('/history/sessions/'+id)).json();$('hl').innerHTML='<button class="btn btn-g" onclick="lh()" style="margin-bottom:12px">← Back</button>'+d.map(m=>`<div class="card"><div class="card-head"><span class="card-label ${m.role==='user'?'':'shop'}">${m.role}</span></div><div class="card-text">${m.content.substring(0,300)}</div><div class="card-meta"><span>${m.created_at.split('.')[0]}</span></div></div>`).join('')}catch(e){}}
+async function ds(id){if(!confirm('Delete this conversation?'))return;await fetch('/history/sessions/'+id,{method:'DELETE'});lh()}
+async function ch(){if(!confirm('Clear ALL history?'))return;await fetch('/history',{method:'DELETE'});lh()}
 
-    // Shopping
-    const shop=document.getElementById('mem-shop');shop.innerHTML='';
-    document.getElementById('shop-count').textContent='('+d.shopping.length+')';
-    if(d.shopping.length===0) shop.innerHTML='<div style="color:#555;font-size:13px">No shopping orders synced yet.</div>';
-    d.shopping.forEach(o=>{
-      const items=(o.items||[]).map(i=>i.name||i).join(', ');
-      shop.innerHTML+=`<div class="memory-card" style="border-left-color:var(--purple)"><div class="cat">${o.platform}</div><div class="text">${o.order_number||'Order'}${o.total?' · $'+o.total:''}</div><div class="meta"><span>${o.date.split(' ')[0]||o.date}${items?' · '+items.substring(0,60):''}</span></div></div>`;});
-  }catch(e){console.error(e);}}
+// Memory
+async function lm(){
+  try{const d=await(await fetch('/memory')).json();const el=$('ml');const t=d.stats.food_orders+d.stats.shopping_orders+d.stats.favourites;$('b-mem').textContent=t;
+  let h='';
+  // Bio
+  const b=d.bio;
+  if(b.full_name)h+=`<div class="section"><div class="section-title">Profile</div><div class="card"><div class="card-head"><span class="card-label user">User</span></div><div class="card-text"><strong>${b.full_name}</strong>${b.email?' · '+b.email:''}${b.location?' · '+b.location:''}${b.bio?'<br>'+b.bio:''}</div></div></div>`;
+  // Favourites
+  if(d.favourites.length){h+=`<div class="section"><div class="section-title">Favourites (${d.favourites.length})</div><div class="grid">${d.favourites.map(f=>`<div class="card"><div class="card-head"><span class="card-label fav">${f.category}</span></div><div class="card-text"><strong>${f.name}</strong>${f.platform?' · '+f.platform:''}</div><div class="card-meta"><span>Ordered ${f.order_count}x</span>${f.rating?'<span>★'+f.rating+'</span>':''}</div></div>`).join('')}</div></div>`}
+  // Food
+  if(d.food_orders.length){h+=`<div class="section"><div class="section-title">Food Orders (${d.food_orders.length})</div><div class="grid">${d.food_orders.map(o=>{const it=(o.items||[]).map(i=>typeof i==='string'?i:i.name||'').filter(Boolean).join(', ');return`<div class="card"><div class="card-head"><span class="card-label food">${o.platform}</span><span style="color:var(--text3);font-size:11px">${o.date?o.date.split(' ')[0]:''}</span></div><div class="card-text"><strong>${o.restaurant||'Order'}</strong>${o.total?' · $'+o.total:''}</div>${it?'<div class="card-meta"><span>'+it.substring(0,80)+'</span></div>':''}</div>`}).join('')}</div></div>`}
+  // Shopping
+  if(d.shopping.length){h+=`<div class="section"><div class="section-title">Shopping (${d.shopping.length})</div><div class="grid">${d.shopping.map(o=>{const it=(o.items||[]).map(i=>typeof i==='string'?i:i.name||'').filter(Boolean).join(', ');return`<div class="card"><div class="card-head"><span class="card-label shop">${o.platform}</span><span style="color:var(--text3);font-size:11px">${o.date?o.date.split(' ')[0]:''}</span></div><div class="card-text">${o.order_number||'Order'}${o.total?' · $'+o.total:''}</div>${it?'<div class="card-meta"><span>'+it.substring(0,80)+'</span></div>':''}</div>`}).join('')}</div></div>`}
+  if(!h)h='<div class="empty">No data yet. Sync your Gmail to get started.</div>';
+  el.innerHTML=h}catch(e){$('ml').innerHTML='<div class="empty">Error loading memory</div>'}}
 
-// ── Settings ──
-async function loadSettings(){
-  try{const r=await fetch('/bio');const d=await r.json();if(d.full_name){document.getElementById('set-name').value=d.full_name;document.getElementById('set-email').value=d.email||'';document.getElementById('set-location').value=d.location||'';document.getElementById('set-bio').value=d.bio||'';}}catch(e){}
-  try{const r=await fetch('/auth/gmail/status');const d=await r.json();document.getElementById('gmail-status').textContent=d.authenticated?'Connected':'Not connected';document.getElementById('gmail-status').style.color=d.authenticated?'var(--green)':'var(--red)';document.getElementById('status-dot').className='dot '+(d.authenticated?'dot-green':'dot-red');}catch(e){}
-  try{const r=await fetch('/sync/stats');const d=await r.json();document.getElementById('stat-food').textContent=d.food_orders;document.getElementById('stat-shop').textContent=d.shopping_orders;document.getElementById('stat-fav').textContent=d.favourites;}catch(e){}}
-async function saveBio(){await fetch('/bio',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({full_name:document.getElementById('set-name').value,email:document.getElementById('set-email').value,location:document.getElementById('set-location').value,bio:document.getElementById('set-bio').value})});alert('Profile saved!');}
-async function syncGmail(){try{const r=await fetch('/sync/gmail',{method:'POST'});const d=await r.json();alert('Synced! Food: '+(d.food_synced||0)+', Shopping: '+(d.shopping_synced||0));}catch(e){alert('Sync failed');}}
+// Settings
+async function ls(){
+  try{const d=await(await fetch('/bio')).json();if(d.full_name){$('sn').value=d.full_name;$('se').value=d.email||'';$('sl').value=d.location||'';$('sbi').value=d.bio||''}}catch(e){}
+  try{const d=await(await fetch('/auth/gmail/status')).json();$('gs').textContent=d.authenticated?'Connected':'Not connected';$('gs').style.color=d.authenticated?'var(--green)':'var(--red)';$('sd').style.background=d.authenticated?'var(--green)':'var(--red)'}catch(e){}
+  try{const d=await(await fetch('/sync/stats')).json();$('df').textContent=d.food_orders;$('ds').textContent=d.shopping_orders;$('dv').textContent=d.favourites}catch(e){}}
+async function sb_(){await fetch('/bio',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({full_name:$('sn').value,email:$('se').value,location:$('sl').value,bio:$('sbi').value})});alert('Saved!')}
+async function sy(){try{const d=await(await fetch('/sync/gmail',{method:'POST'})).json();alert('Synced! Food: '+(d.food_synced||0)+', Shopping: '+(d.shopping_synced||0))}catch(e){alert('Sync failed')}}
 
-// Init
-loadSettings();
+ls();
 </script>
 </body>
 </html>
