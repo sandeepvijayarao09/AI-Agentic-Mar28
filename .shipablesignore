@@ -1,0 +1,15 @@
+.venv
+node_modules
+.next
+__pycache__
+*.pyc
+second_brain.db
+.token.json
+.env
+.railtracks
+screenshots
+frontend/node_modules
+frontend/.next
+*.egg-info
+dist
+build
