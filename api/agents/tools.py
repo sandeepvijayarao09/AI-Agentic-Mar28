@@ -185,6 +185,45 @@ def search_product_to_buy(query: str) -> str:
     })
 
 
+@function_node
+def autonomous_shop_amazon(query: str) -> str:
+    """Autonomously open Amazon in a real browser, search for the product, and add it to the user's cart. Use this when the user wants to actually BUY something, not just browse. This opens a visible browser window, searches Amazon, clicks the first result, and adds to cart.
+
+    Args:
+        query (str): The product to search for and add to cart.
+    """
+    import asyncio, threading
+    from api.services.autonomous_shop import shop_amazon
+    # Run in a new thread with its own event loop (can't nest asyncio.run in FastAPI)
+    result = {}
+    def run():
+        nonlocal result
+        result = asyncio.run(shop_amazon(query))
+    t = threading.Thread(target=run)
+    t.start()
+    t.join(timeout=45)
+    return json.dumps(result or {"status": "timeout", "message": "Shopping took too long, but the browser may still be open."})
+
+
+@function_node
+def autonomous_order_food(query: str) -> str:
+    """Autonomously open DoorDash in a real browser to find and order food. Use this when the user wants to actually ORDER food, not just get links. This opens a visible browser window and navigates to the restaurant.
+
+    Args:
+        query (str): The restaurant name or food type to search for.
+    """
+    import asyncio, threading
+    from api.services.autonomous_shop import order_doordash
+    result = {}
+    def run():
+        nonlocal result
+        result = asyncio.run(order_doordash(query))
+    t = threading.Thread(target=run)
+    t.start()
+    t.join(timeout=45)
+    return json.dumps(result or {"status": "timeout", "message": "Ordering took too long, but the browser may still be open."})
+
+
 def _get_platform_search_url(platform: str, restaurant: str) -> str:
     encoded = restaurant.replace(" ", "%20")
     urls = {

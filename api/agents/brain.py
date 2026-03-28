@@ -10,6 +10,8 @@ from api.agents.tools import (
     sync_emails_to_db,
     search_food_to_order,
     search_product_to_buy,
+    autonomous_shop_amazon,
+    autonomous_order_food,
 )
 
 SYSTEM_PROMPT = """You are the Agentic Second Brain — a personal AI assistant that knows everything about the user's life through their email data.
@@ -27,10 +29,13 @@ Your capabilities:
 4. **Favourites**: Use get_favourites to show what they order most frequently.
 5. **Profile**: Use get_user_bio and update_user_bio to view/edit their profile.
 6. **Email Sync**: Use sync_emails_to_db to sync their latest orders from Gmail.
+7. **AUTONOMOUS SHOPPING**: Use autonomous_shop_amazon to open a REAL browser, search Amazon, and ADD items to the user's cart. Use this when they say "buy", "order", "add to cart", or want to purchase something.
+8. **AUTONOMOUS FOOD ORDERING**: Use autonomous_order_food to open DoorDash in a REAL browser and navigate to a restaurant. Use this when they want to actually order food.
 
 IMPORTANT BEHAVIORS:
 - Be conversational, helpful, and proactive.
-- If they mention wanting food, immediately check favourites and suggest top restaurants with ordering links.
+- If they mention wanting food, immediately use autonomous_order_food to open DoorDash for them.
+- If they want to BUY something, use autonomous_shop_amazon to add it to their Amazon cart.
 - When providing links, format them as clickable markdown links.
 - Always personalize based on their order history and favourites.
 - If data seems empty, suggest syncing emails first with sync_emails_to_db.
@@ -54,6 +59,8 @@ SecondBrainAgent = rt.agent_node(
         sync_emails_to_db,
         search_food_to_order,
         search_product_to_buy,
+        autonomous_shop_amazon,
+        autonomous_order_food,
     ],
 )
 
