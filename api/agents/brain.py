@@ -66,4 +66,8 @@ async def chat(message: str, history: list[dict] | None = None) -> str:
         timeout=60.0,
     ):
         result = await rt.call(SecondBrainAgent, message)
-        return str(result)
+        text = str(result)
+        # Strip LLMResponse wrapper from Railtracks output
+        if text.startswith("LLMResponse(") and text.endswith(")"):
+            text = text[len("LLMResponse("):-1]
+        return text
