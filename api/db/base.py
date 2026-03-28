@@ -20,5 +20,5 @@ def get_db():
 
 
 def init_db():
-    from api.models import food_order, shopping, user_favourite, user_bio  # noqa
+    from api.models import food_order, shopping, user_favourite, user_bio, chat_history, memory  # noqa
     Base.metadata.create_all(bind=engine)
