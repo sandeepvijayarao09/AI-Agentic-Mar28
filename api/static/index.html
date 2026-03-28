@@ -279,10 +279,13 @@ async function send(){
     input.value=''; loading=true; const t=addTyping();
     try{
       const fd=new FormData(); fd.append('file',pendingImage);
-      const r=await fetch('/identify',{method:'POST',body:fd}); const d=await r.json(); t.remove();
-      addMsg('assistant','**Identified:** '+d.identified_product+'\n\nSearching Amazon...\n\n[Search Amazon]('+d.amazon_search_url+')');
-      maybeSpeak('I identified '+d.identified_product+'. Let me add it to your Amazon cart.');
-      const r2=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Buy me '+d.identified_product+' on Amazon',history:[]})}); const d2=await r2.json();
+      const vRes=await fetch('/identify',{method:'POST',body:fd}); const vData=await vRes.json(); t.remove();
+      const productName=vData.identified_product||'product';
+      const amazonUrl=vData.amazon_search_url||('https://www.amazon.com/s?k='+encodeURIComponent(productName));
+      addMsg('assistant','**Identified:** '+productName+'\n\nSearching Amazon...\n\n[Search on Amazon]('+amazonUrl+')');
+      maybeSpeak('I identified '+productName+'. Let me add it to your Amazon cart.');
+      const r2=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Buy me '+productName+' on Amazon',session_id:currentSessionId,history:[]})}); const d2=await r2.json();
+      if(d2.session_id) currentSessionId=d2.session_id;
       addMsg('assistant',d2.response); maybeSpeak(d2.response);
     }catch(e){t.remove();addMsg('assistant','Error processing image.');}
     clearImg(); loading=false; return;
