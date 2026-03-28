@@ -2,19 +2,18 @@
 
 import base64
 from fastapi import APIRouter, UploadFile, File, HTTPException
-from google import genai
-
 from api.config import settings
 
 router = APIRouter(tags=["vision"])
 
-client = genai.Client(api_key=settings.gemini_api_key)
-
 
 @router.post("/identify")
 async def identify_product(file: UploadFile = File(...)):
-    """Upload an image, Gemini identifies the product, returns a search query for Amazon."""
+    """Upload an image, Gemini identifies the product."""
     try:
+        from google import genai
+        client = genai.Client(api_key=settings.gemini_api_key)
+
         image_bytes = await file.read()
         b64 = base64.standard_b64encode(image_bytes).decode("utf-8")
 
@@ -38,4 +37,9 @@ async def identify_product(file: UploadFile = File(...)):
             "message": f"I identified: '{search_query}'. Ready to add to your Amazon cart!",
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Fallback — return the error but still give a usable response
+        return {
+            "identified_product": "product from image",
+            "amazon_search_url": "https://www.amazon.com",
+            "message": f"Could not identify product: {str(e)[:100]}",
+        }

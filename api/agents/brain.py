@@ -15,6 +15,8 @@ from api.agents.tools import (
     suggest_food_from_history,
     suggest_product_from_history,
     find_product_in_gmail,
+    send_email_for_user,
+    search_emails_for_user,
 )
 
 SYSTEM_PROMPT = """You are the Agentic Second Brain — a personal AI assistant that knows everything about the user's life through their email data.
@@ -33,7 +35,9 @@ CORE BEHAVIOR — ALWAYS personalize from order history:
 
 6. **"Sync my emails"** → Use sync_emails_to_db to pull orders from Gmail.
 
-7. **General questions** → Answer directly via your knowledge.
+7. **Write/Send emails** → Use send_email_for_user when the user wants to compose or send an email.
+8. **Search emails** → Use search_emails_for_user when the user asks about specific emails in their inbox.
+9. **General questions** → Answer directly via your knowledge.
 
 IMPORTANT RULES:
 - NEVER give generic responses when you have tools. ALWAYS use a tool.
@@ -64,6 +68,8 @@ SecondBrainAgent = rt.agent_node(
         suggest_food_from_history,
         suggest_product_from_history,
         find_product_in_gmail,
+        send_email_for_user,
+        search_emails_for_user,
     ],
 )
 

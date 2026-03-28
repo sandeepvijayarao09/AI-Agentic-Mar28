@@ -347,6 +347,54 @@ def find_product_in_gmail(query: str) -> str:
         return json.dumps({"found": False, "message": f"Couldn't search Gmail: {str(e)}. Make sure Gmail is connected."})
 
 
+@function_node
+def send_email_for_user(to: str, subject: str, body: str) -> str:
+    """Draft and send an email on behalf of the user. Use this when the user asks to send an email, write an email, reply to someone, or compose a message.
+
+    Args:
+        to (str): The recipient email address.
+        subject (str): The email subject line.
+        body (str): The email body text.
+    """
+    from api.services.gmail import send_email
+    try:
+        result = send_email(to, subject, body, html=False)
+        return json.dumps({
+            "status": "sent",
+            "message_id": result.get("message_id", ""),
+            "message": f"Email sent to {to} with subject '{subject}'"
+        })
+    except Exception as e:
+        return json.dumps({"status": "error", "message": f"Failed to send email: {str(e)}"})
+
+
+@function_node
+def search_emails_for_user(query: str) -> str:
+    """Search the user's Gmail inbox. Use this when the user asks about emails, wants to find a specific email, or needs information from their inbox.
+
+    Args:
+        query (str): Gmail search query (e.g., 'from:boss@co.com', 'subject:meeting', 'invoice').
+    """
+    from api.services.gmail import search_emails
+    try:
+        emails = search_emails(query, max_results=5)
+        results = []
+        for e in emails:
+            results.append({
+                "subject": e.get("subject", "")[:80],
+                "from": e.get("from", ""),
+                "date": e.get("date", ""),
+                "snippet": e.get("snippet", "")[:150],
+            })
+        return json.dumps({
+            "count": len(results),
+            "emails": results,
+            "message": f"Found {len(results)} emails matching '{query}'"
+        })
+    except Exception as e:
+        return json.dumps({"count": 0, "message": f"Search failed: {str(e)}"})
+
+
 def _get_platform_search_url(platform: str, restaurant: str) -> str:
     encoded = restaurant.replace(" ", "%20")
     urls = {
