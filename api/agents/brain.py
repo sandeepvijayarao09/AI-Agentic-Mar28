@@ -38,7 +38,7 @@ IMPORTANT BEHAVIORS:
 """
 
 # Use Gemini as the LLM (reads GEMINI_API_KEY from env)
-LLM = rt.llm.GeminiLLM("gemini-2.0-flash")
+LLM = rt.llm.GeminiLLM("gemini-2.5-flash-lite")
 
 # Create the main agent using Railtracks
 SecondBrainAgent = rt.agent_node(

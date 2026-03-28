@@ -24,6 +24,10 @@ async def chat_endpoint(req: ChatRequest):
     """Send a message to the Second Brain agent."""
     try:
         response = await chat(req.message, req.history)
-        return ChatResponse(response=str(response))
+        # Clean up LLMResponse wrapper if present
+        text = str(response)
+        if text.startswith("LLMResponse(") and text.endswith(")"):
+            text = text[len("LLMResponse("):-1]
+        return ChatResponse(response=text)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
