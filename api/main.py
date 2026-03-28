@@ -42,12 +42,6 @@ app.include_router(chat_router)
 app.include_router(sync_router)
 app.include_router(bio_router)
 
-# Serve frontend static files if they exist
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend", "out")
-if os.path.exists(frontend_dir):
-    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
-
-
 @app.get("/api/health")
 def health():
     from api.db.base import SessionLocal
@@ -64,16 +58,6 @@ def health():
         db.close()
 
 
-@app.get("/")
-def root():
-    return {
-        "app": "Agentic Second Brain",
-        "version": "0.1.0",
-        "endpoints": {
-            "chat": "POST /chat",
-            "gmail_auth": "GET /auth/gmail/authorize",
-            "sync": "POST /sync/gmail",
-            "bio": "GET/PUT /bio",
-            "health": "GET /api/health",
-        },
-    }
+# Serve the chat UI at root — must be last (catches all unmatched routes)
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+app.mount("/", StaticFiles(directory=static_dir, html=True), name="static")
