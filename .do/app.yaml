@@ -1,0 +1,54 @@
+name: agentic-second-brain
+region: sfo
+services:
+  - name: backend
+    github:
+      repo: sandeepvijayarao09/Agentic-Second-Brain
+      branch: main
+      deploy_on_push: true
+    source_dir: /
+    build_command: pip install -r requirements.txt
+    run_command: uvicorn api.main:app --host 0.0.0.0 --port 8080
+    environment_slug: python
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    routes:
+      - path: /api
+      - path: /auth
+      - path: /chat
+      - path: /sync
+      - path: /bio
+    envs:
+      - key: GOOGLE_CLIENT_ID
+        value: "SET_VIA_DASHBOARD"
+        type: SECRET
+      - key: GOOGLE_CLIENT_SECRET
+        value: "SET_VIA_DASHBOARD"
+        type: SECRET
+      - key: GEMINI_API_KEY
+        value: "SET_VIA_DASHBOARD"
+        type: SECRET
+      - key: DATABASE_URL
+        value: "sqlite:///./second_brain.db"
+      - key: APP_ENV
+        value: "production"
+      - key: OAUTH_REDIRECT_URI
+        value: "${APP_URL}/auth/gmail/callback"
+  - name: frontend
+    github:
+      repo: sandeepvijayarao09/Agentic-Second-Brain
+      branch: main
+      deploy_on_push: true
+    source_dir: /frontend
+    build_command: npm install && npm run build
+    run_command: npm start
+    environment_slug: node-js
+    http_port: 3000
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    routes:
+      - path: /
+    envs:
+      - key: NEXT_PUBLIC_API_URL
+        value: "${APP_URL}"
