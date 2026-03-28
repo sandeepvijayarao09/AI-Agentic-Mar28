@@ -136,6 +136,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
     </div>
   </div>
   <div class="nav">
+    <div class="nav-item" onclick="newChat()" style="border:1px dashed #444;margin-bottom:8px"><span class="icon">✨</span> New Chat</div>
     <div class="nav-item active" onclick="showPage('chat')"><span class="icon">💬</span> Chat</div>
     <div class="nav-item" onclick="showPage('history')"><span class="icon">📜</span> History <span class="badge" id="history-count">0</span></div>
     <div class="nav-item" onclick="showPage('memory')"><span class="icon">🧠</span> Memory <span class="badge" id="memory-count">0</span></div>
@@ -249,7 +250,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg);
 
 <script>
 // ── State ──
-let loading=false, pendingImage=null, voiceOut=false, autoVoice=true, isRec=false, recognition=null;
+let loading=false, pendingImage=null, voiceOut=false, autoVoice=true, isRec=false, recognition=null, currentSessionId=0;
 
 // ── Navigation ──
 function showPage(name) {
@@ -262,6 +263,11 @@ function showPage(name) {
   if(name==='settings') loadSettings();
 }
 
+function newChat(){
+  currentSessionId=0;
+  document.getElementById('messages-inner').innerHTML='<div class="welcome" id="welcome"><div class="emoji">🧠</div><h2>Your Agentic Second Brain</h2><p>Chat, speak, or snap a photo — I\'ll shop for you autonomously.</p><div class="suggestions"><button class="suggestion" onclick="sendSugg(this)">I\'m hungry, order me something</button><button class="suggestion" onclick="sendSugg(this)">Buy me headphones on Amazon</button><button class="suggestion" onclick="sendSugg(this)">Reorder my last purchase</button><button class="suggestion" onclick="sendSugg(this)">Sync my emails</button></div></div>';
+  showPage('chat');
+}
 // ── Chat ──
 function sendSugg(el){document.getElementById('input').value=el.textContent;send();}
 async function send(){
@@ -284,7 +290,8 @@ async function send(){
   addMsg('user',text); input.value=''; loading=true; document.getElementById('send-btn').disabled=true;
   const t=addTyping();
   try{
-    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:[]})}); const d=await r.json(); t.remove();
+    const r=await fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,session_id:currentSessionId,history:[]})}); const d=await r.json(); t.remove();
+    if(d.session_id) currentSessionId=d.session_id;
     const resp=d.response||d.detail||'Error'; addMsg('assistant',resp); maybeSpeak(resp);
   }catch(e){t.remove();addMsg('assistant','Error connecting.');}
   loading=false; document.getElementById('send-btn').disabled=false; document.getElementById('input').focus();
@@ -329,10 +336,16 @@ function clearImg(){pendingImage=null;document.getElementById('img-bar').style.d
 
 // ── History ──
 async function loadHistory(){
-  try{const r=await fetch('/history');const d=await r.json();const el=document.getElementById('history-list');el.innerHTML='';
+  try{const r=await fetch('/history/sessions');const d=await r.json();const el=document.getElementById('history-list');el.innerHTML='';
   document.getElementById('history-count').textContent=d.length;
-  d.forEach(m=>{el.innerHTML+=`<div class="history-item"><div class="role ${m.role}">${m.role}</div><div class="text">${m.content.substring(0,200)}</div><div class="time">${m.created_at}</div></div>`;});}catch(e){}}
-async function clearHistory(){if(!confirm('Clear all chat history?'))return;await fetch('/history',{method:'DELETE'});loadHistory();}
+  if(d.length===0){el.innerHTML='<div style="color:#555;text-align:center;margin-top:40px">No chat sessions yet. Start chatting!</div>';return;}
+  d.forEach(s=>{el.innerHTML+=`<div class="history-item" style="cursor:pointer" onclick="loadSession(${s.id})"><div class="role user" style="display:flex;justify-content:space-between"><span>${s.title}</span><button class="del" onclick="event.stopPropagation();deleteSession(${s.id})" style="background:none;border:none;color:#555;cursor:pointer">🗑️</button></div><div class="text">${s.preview}</div><div class="time">${s.message_count} messages · ${s.updated_at}</div></div>`;});}catch(e){}}
+async function loadSession(id){
+  try{const r=await fetch('/history/sessions/'+id);const d=await r.json();const el=document.getElementById('history-list');
+  el.innerHTML='<div style="margin-bottom:12px"><button class="btn-sm btn-gray" onclick="loadHistory()">← Back to sessions</button></div>';
+  d.forEach(m=>{el.innerHTML+=`<div class="history-item"><div class="role ${m.role}">${m.role}</div><div class="text">${m.content.substring(0,300)}</div><div class="time">${m.created_at}</div></div>`;});}catch(e){}}
+async function deleteSession(id){if(!confirm('Delete this chat?'))return;await fetch('/history/sessions/'+id,{method:'DELETE'});loadHistory();}
+async function clearHistory(){if(!confirm('Clear ALL chat history?'))return;await fetch('/history',{method:'DELETE'});loadHistory();}
 
 // ── Memory ──
 async function loadMemories(){
