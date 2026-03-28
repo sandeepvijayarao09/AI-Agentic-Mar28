@@ -30,10 +30,14 @@ def detect_platform(email: dict) -> Optional[str]:
     for platform, pattern in PLATFORM_PATTERNS.items():
         if pattern.search(text):
             return platform
-    # Fallback: check for restaurant names that imply food delivery
-    food_keywords = ["order from", "your order", "delivery to", "delivery fee", "estimated delivery"]
-    if any(kw in text.lower() for kw in food_keywords):
-        return "doordash"  # default food platform
+    # Fallback: check for order patterns
+    text_lower = text.lower()
+    food_keywords = ["order from", "delivery to", "delivery fee", "estimated delivery", "reorder from"]
+    shop_keywords = ["has shipped", "order total", "tracking", "amazon.com/dp", "amazon.com/gp"]
+    if any(kw in text_lower for kw in shop_keywords):
+        return "amazon"
+    if any(kw in text_lower for kw in food_keywords):
+        return "doordash"
     return None
 
 

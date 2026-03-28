@@ -28,7 +28,9 @@ SHOPPING_QUERIES = [
     'from:amazon subject:order OR subject:"your order"',
     'from:walmart subject:order',
     'from:target.com subject:order',
-    'subject:"Amazon.com order confirmation"',  # catches self-sent mock emails
+    'subject:"Amazon.com order confirmation"',
+    'subject:"Amazon.com order" subject:"shipped"',
+    'subject:"Amazon.com order"',
 ]
 
 
