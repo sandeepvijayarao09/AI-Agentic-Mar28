@@ -1,6 +1,11 @@
-"""Main Agentic Second Brain — powered by Railtracks + Gemini."""
+"""Main Agentic Second Brain — powered by Google ADK + Gemini."""
 
-import railtracks as rt
+import os
+from google.adk.agents import Agent
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
+from google.genai import types
+
 from api.agents.tools import (
     get_food_orders,
     get_shopping_orders,
@@ -48,13 +53,13 @@ IMPORTANT RULES:
 - Be concise, direct, and action-oriented.
 """
 
-LLM = rt.llm.GeminiLLM("gemini-2.5-flash-lite")
-
-SecondBrainAgent = rt.agent_node(
+# Create the Google ADK Agent
+second_brain_agent = Agent(
     name="SecondBrain",
-    llm=LLM,
-    system_message=SYSTEM_PROMPT,
-    tool_nodes=[
+    model="gemini-2.5-flash-lite",
+    description="Personal AI assistant that knows your food orders, shopping history, and favourites from Gmail.",
+    instruction=SYSTEM_PROMPT,
+    tools=[
         get_food_orders,
         get_shopping_orders,
         get_favourites,
@@ -73,6 +78,16 @@ SecondBrainAgent = rt.agent_node(
     ],
 )
 
+# Session service for conversation memory
+session_service = InMemorySessionService()
+
+# Runner
+runner = Runner(
+    agent=second_brain_agent,
+    app_name="SecondBrain",
+    session_service=session_service,
+)
+
 
 async def chat(message: str, history: list[dict] | None = None) -> str:
     """Send a message to the Second Brain agent and get a response."""
@@ -82,13 +97,31 @@ async def chat(message: str, history: list[dict] | None = None) -> str:
         conv = "\n".join([f"{m['role']}: {m['content']}" for m in history[-8:]])
         context_msg = f"Previous conversation:\n{conv}\n\nUser's latest message: {message}"
 
-    with rt.Session(
-        context={"prompt": context_msg},
-        save_state=False,
-        timeout=60.0,
+    # Get or create session
+    session_id = "default"
+    session = await session_service.get_session(
+        app_name="SecondBrain", user_id="user", session_id=session_id
+    )
+    if not session:
+        session = await session_service.create_session(
+            app_name="SecondBrain", user_id="user", session_id=session_id
+        )
+
+    # Create user message content
+    content = types.Content(
+        role="user",
+        parts=[types.Part.from_text(text=context_msg)],
+    )
+
+    # Run the agent
+    response_text = ""
+    async for event in runner.run_async(
+        user_id="user",
+        session_id=session_id,
+        new_message=content,
     ):
-        result = await rt.call(SecondBrainAgent, context_msg)
-        text = str(result)
-        if text.startswith("LLMResponse(") and text.endswith(")"):
-            text = text[len("LLMResponse("):-1]
-        return text
+        if event.is_final_response():
+            if event.content and event.content.parts:
+                response_text = event.content.parts[0].text or ""
+
+    return response_text or "I couldn't process that request. Please try again."

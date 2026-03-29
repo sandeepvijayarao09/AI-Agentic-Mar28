@@ -20,6 +20,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Railtracks uses litellm which reads env vars for API keys
+# Google ADK reads GOOGLE_API_KEY env var for Gemini
 if settings.gemini_api_key:
-    os.environ["GEMINI_API_KEY"] = settings.gemini_api_key
+    os.environ["GOOGLE_API_KEY"] = settings.gemini_api_key
+    os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "FALSE"
