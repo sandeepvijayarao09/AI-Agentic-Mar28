@@ -1,4 +1,4 @@
-"""Agent management endpoints — trigger and monitor scheduled agents."""
+"""Agent management endpoints — trigger and monitor all agents."""
 
 from fastapi import APIRouter
 from api.agents.scheduled import run_email_sync, run_favourites_validation, run_daily_maintenance
@@ -8,47 +8,38 @@ router = APIRouter(prefix="/agents", tags=["agents"])
 
 @router.post("/sync")
 async def trigger_email_sync():
-    """Trigger the Email Sync Agent to pull orders from Gmail."""
     result = await run_email_sync()
     return {"agent": "EmailSyncAgent", "result": str(result)}
 
 
 @router.post("/validate")
 async def trigger_favourites_validation():
-    """Trigger the Favourites Accuracy Agent to revalidate data."""
     result = await run_favourites_validation()
     return {"agent": "FavouritesValidator", "result": result}
 
 
 @router.post("/daily")
 async def trigger_daily_maintenance():
-    """Trigger full daily maintenance: email sync + favourites validation."""
     result = await run_daily_maintenance()
     return {"agents": ["EmailSyncAgent", "FavouritesValidator"], "result": result}
 
 
 @router.get("/status")
 def agent_status():
-    """List all registered agents and their capabilities."""
+    """Master-Slave architecture — 7 chat agents + 2 scheduled agents."""
     return {
+        "architecture": "Master-Slave with Verifier",
         "agents": [
-            {
-                "name": "SecondBrain",
-                "type": "chat",
-                "tools": 13,
-                "description": "Main conversational agent with 13 tools for food, shopping, favourites, bio, Gmail sync, and autonomous browser shopping",
-            },
-            {
-                "name": "EmailSyncAgent",
-                "type": "scheduled",
-                "schedule": "daily",
-                "description": "Autonomously checks Gmail for new order confirmations and updates the database",
-            },
-            {
-                "name": "FavouritesValidator",
-                "type": "scheduled",
-                "schedule": "daily",
-                "description": "Recomputes favourites from actual order data, removes stale entries, ensures accuracy",
-            },
-        ]
+            {"name": "MasterAgent", "type": "orchestrator", "model": "gemini-2.5-flash", "role": "Routes requests to specialized sub-agents", "sub_agents": ["FoodAgent", "ShoppingAgent", "EmailAgent", "ProfileAgent", "GeneralAgent"]},
+            {"name": "FoodAgent", "type": "sub-agent", "model": "gemini-2.5-flash-lite", "tools": 4, "role": "Food ordering, restaurant suggestions, DoorDash"},
+            {"name": "ShoppingAgent", "type": "sub-agent", "model": "gemini-2.5-flash-lite", "tools": 5, "role": "Product buying, reordering, Amazon cart"},
+            {"name": "EmailAgent", "type": "sub-agent", "model": "gemini-2.5-flash-lite", "tools": 3, "role": "Send/search emails, sync Gmail orders"},
+            {"name": "ProfileAgent", "type": "sub-agent", "model": "gemini-2.5-flash-lite", "tools": 3, "role": "User bio, preferences, favourites"},
+            {"name": "GeneralAgent", "type": "sub-agent", "model": "gemini-2.5-flash-lite", "tools": 0, "role": "General knowledge, greetings"},
+            {"name": "VerifierAgent", "type": "post-processor", "model": "gemini-2.5-flash-lite", "role": "Validates accuracy, completeness, links before returning to user"},
+            {"name": "EmailSyncAgent", "type": "scheduled", "schedule": "daily", "tools": 1, "role": "Auto-syncs Gmail orders to database"},
+            {"name": "FavouritesValidator", "type": "scheduled", "schedule": "daily", "tools": 0, "role": "Recomputes favourites from order data"},
+        ],
+        "total_agents": 9,
+        "total_tools": 15,
     }
