@@ -156,12 +156,12 @@ def _plan_execution(user_message: str, conversation_context: str = "") -> dict:
 
     # ── Plan: Decide agents and chaining ──
 
-    # Complex: Rebuy requires chaining Shopping → Email (search history, then Gmail)
+    # Complex: Rebuy requires chaining Shopping (find product) → Shopping (open Amazon)
     if rebuy_signals:
-        plan["thinking"] = "User wants to rebuy something. Chain: ShoppingAgent searches history, if not found chain to EmailAgent to search Gmail, then back to ShoppingAgent to open Amazon."
-        plan["agents_to_deploy"] = ["ShoppingAgent", "EmailAgent"]
-        plan["chain"] = True
-        plan["chain_reason"] = "Search purchase history first, fall back to Gmail search, then buy"
+        plan["thinking"] = "User wants to rebuy something. Deploy ShoppingAgent to search history and Gmail, then open Amazon to buy it."
+        plan["agents_to_deploy"] = ["ShoppingAgent"]
+        plan["chain"] = False
+        plan["chain_reason"] = "ShoppingAgent has both search and buy tools"
 
     # Complex: "Order my usual" requires Profile (get favs) → Food (order it)
     elif food_signals and ("usual" in msg or "regular" in msg or "same as last" in msg):
