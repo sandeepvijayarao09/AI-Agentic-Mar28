@@ -10,21 +10,38 @@ from api.services.sync import sync_gmail_orders
 
 
 def get_food_orders(limit: int = 20) -> dict:
-    """Get recent food delivery orders from the database. Returns food orders including restaurant name, items, total, platform, and date."""
+    """Get recent food delivery orders. Returns order_id, date, restaurant name, items (with name/qty/price), platform, and total amount for each order."""
     db = SessionLocal()
     try:
         orders = db.query(FoodOrder).order_by(FoodOrder.order_date.desc()).limit(limit).all()
-        return {"orders": [{"id": o.id, "platform": o.platform, "restaurant": o.restaurant_name, "items": o.items, "total": o.total, "date": str(o.order_date) if o.order_date else "", "status": o.status} for o in orders]}
+        return {"orders": [{
+            "order_id": o.gmail_message_id,
+            "date": str(o.order_date) if o.order_date else "",
+            "name": o.restaurant_name,
+            "items": o.items or [],
+            "platform": o.platform,
+            "amount": o.total,
+            "status": o.status,
+        } for o in orders]}
     finally:
         db.close()
 
 
 def get_shopping_orders(limit: int = 20) -> dict:
-    """Get recent shopping orders from the database. Returns shopping orders including items, total, platform, order number, and date."""
+    """Get recent shopping orders. Returns order_id, date, order number, items (with name/qty/price), platform, and total amount for each order."""
     db = SessionLocal()
     try:
         orders = db.query(Shopping).order_by(Shopping.order_date.desc()).limit(limit).all()
-        return {"orders": [{"id": o.id, "platform": o.platform, "order_number": o.order_number, "items": o.items, "total": o.total, "date": str(o.order_date) if o.order_date else "", "status": o.status, "tracking": o.tracking_number} for o in orders]}
+        return {"orders": [{
+            "order_id": o.order_number or o.gmail_message_id,
+            "date": str(o.order_date) if o.order_date else "",
+            "name": f"Order #{o.order_number}" if o.order_number else "Shopping Order",
+            "items": o.items or [],
+            "platform": o.platform,
+            "amount": o.total,
+            "status": o.status,
+            "tracking": o.tracking_number,
+        } for o in orders]}
     finally:
         db.close()
 
