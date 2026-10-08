@@ -56,3 +56,35 @@ def test_favourites_rank_by_order_count(db, monkeypatch):
     ]
     guac = db.query(UserFavourite).filter(UserFavourite.name == "Chips & Guacamole").one()
     assert guac.order_count == 6  # qty 2 across three orders
+
+
+def test_demo_seed_goes_through_the_parser(db):
+    from api.demo import FOOD, SHOPPING, seed_demo_data
+
+    result = seed_demo_data(db)
+    assert result == {"seeded": True, "food_orders": len(FOOD), "shopping_orders": len(SHOPPING)}
+    top = (
+        db.query(UserFavourite)
+        .filter(UserFavourite.category == "restaurant")
+        .order_by(UserFavourite.order_count.desc())
+        .first()
+    )
+    assert (top.name, top.order_count) == ("Chipotle Mexican Grill", 4)
+    headphones = db.query(Shopping).filter(Shopping.order_number == "113-0042817-5521098").one()
+    assert headphones.items == [{"name": "Sony WH-1000XM5 Wireless Headphones", "qty": 1, "price": 328.0}]
+
+    assert seed_demo_data(db) == {"seeded": False, "reason": "database already has orders"}
+
+
+def test_shopping_items_are_products_not_food(db, monkeypatch):
+    from api.agents import scheduled
+
+    monkeypatch.setattr(sync, "search_emails", _fake_search([fx.AMAZON, fx.DOORDASH]))
+    sync.sync_gmail_orders(db)
+    charger = db.query(UserFavourite).filter(UserFavourite.name == "Anker USB C Charger 65W").one()
+    assert charger.category == "product"
+    burrito = db.query(UserFavourite).filter(UserFavourite.name == "Chicken Burrito Bowl").one()
+    assert burrito.category == "food_item"
+
+    # The daily validator agrees with sync, so it changes nothing.
+    assert scheduled.validate_favourites() == {"status": "validated", "updated": 0, "added": 0, "removed": 0}

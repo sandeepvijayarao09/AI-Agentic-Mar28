@@ -22,6 +22,14 @@ from api.routes.agents import router as agents_router
 async def lifespan(app: FastAPI):
     # Startup: create DB tables
     init_db()
+    if os.environ.get("DEMO_MODE", "").lower() in {"1", "true", "yes"}:
+        from api.db.base import SessionLocal
+        from api.demo import seed_demo_data
+        db = SessionLocal()
+        try:
+            seed_demo_data(db)
+        finally:
+            db.close()
     yield
 
 
