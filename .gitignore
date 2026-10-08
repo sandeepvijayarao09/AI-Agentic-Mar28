@@ -54,3 +54,7 @@ node_modules/
 second_brain.db
 .railtracks/
 *.tsbuildinfo
+
+# Runtime output (Playwright debug screenshots)
+runtime/
+screenshots/

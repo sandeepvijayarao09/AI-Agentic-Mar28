@@ -130,7 +130,12 @@ def search_product_to_buy(query: str) -> dict:
 def autonomous_shop_amazon(query: str) -> dict:
     """Autonomously open Amazon in a real browser, search for the product, and add it to the user's cart. Opens a visible browser window. Use when the user wants to actually BUY something."""
     import asyncio, threading
-    from api.services.autonomous_shop import shop_amazon
+    from api.services.autonomous_shop import browser_automation_enabled, shop_amazon
+    if not browser_automation_enabled():
+        result = search_product_to_buy(query)
+        result["status"] = "browser_automation_disabled"
+        result["message"] = f"Browser automation is off (set ENABLE_BROWSER_AUTOMATION=1). Here are direct links to search for '{query}'."
+        return result
     result = {}
     def run():
         nonlocal result
@@ -144,7 +149,10 @@ def autonomous_shop_amazon(query: str) -> dict:
 def autonomous_order_food(query: str) -> dict:
     """Autonomously open DoorDash in a real browser to find and order food. Opens a visible browser window and navigates to the restaurant."""
     import asyncio, threading
-    from api.services.autonomous_shop import order_doordash
+    from api.services.autonomous_shop import browser_automation_enabled, order_doordash
+    if not browser_automation_enabled():
+        url = f"https://www.doordash.com/search/store/{query.replace(' ', '%20')}/"
+        return {"status": "browser_automation_disabled", "url": url, "message": f"Browser automation is off (set ENABLE_BROWSER_AUTOMATION=1). [Search DoorDash for '{query}']({url})"}
     result = {}
     def run():
         nonlocal result

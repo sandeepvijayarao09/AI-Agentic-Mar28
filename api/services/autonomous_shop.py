@@ -1,16 +1,30 @@
-"""Autonomous browser-based shopping — opens real sites, searches, adds to cart."""
+"""Autonomous browser-based shopping — opens real sites, searches, adds to cart.
+
+Off by default. Set ENABLE_BROWSER_AUTOMATION=1 to let the agents drive a
+visible Chromium window via Playwright. Debug screenshots from each run go
+to BROWSER_SCREENSHOTS_DIR (default: runtime/screenshots, gitignored).
+"""
 
 import asyncio
+import os
 from pathlib import Path
 
-SCREENSHOTS_DIR = Path("screenshots")
-SCREENSHOTS_DIR.mkdir(exist_ok=True)
+
+def browser_automation_enabled() -> bool:
+    return os.environ.get("ENABLE_BROWSER_AUTOMATION", "").lower() in {"1", "true", "yes"}
+
+
+def _screenshots_dir() -> Path:
+    path = Path(os.environ.get("BROWSER_SCREENSHOTS_DIR", "runtime/screenshots"))
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 async def shop_amazon(query: str) -> dict:
     """Open Amazon, search for a product, and try to add to cart."""
     from playwright.async_api import async_playwright
 
+    SCREENSHOTS_DIR = _screenshots_dir()
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=False,
@@ -91,6 +105,7 @@ async def order_doordash(query: str) -> dict:
     """Open DoorDash and search for a restaurant or food."""
     from playwright.async_api import async_playwright
 
+    SCREENSHOTS_DIR = _screenshots_dir()
     async with async_playwright() as p:
         browser = await p.chromium.launch(
             headless=False,
