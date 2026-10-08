@@ -1,10 +1,23 @@
 {
   "name": "agentic-second-brain",
   "version": "1.0.0",
-  "description": "AI personal assistant that learns from Gmail, shops Amazon, orders DoorDash autonomously with 15 Railtracks agent tools",
+  "description": "AI personal assistant that parses Gmail order confirmations into a structured memory and routes requests to Google ADK + Gemini agents (15 tools)",
   "author": "sandeepvijayarao09",
   "license": "MIT",
-  "repository": "https://github.com/sandeepvijayarao09/Agentic-Second-Brain",
-  "categories": ["productivity", "ai-agent", "shopping", "email"],
-  "keywords": ["gmail", "amazon", "doordash", "railtracks", "gemini", "second-brain", "autonomous-agent"]
+  "repository": "https://github.com/sandeepvijayarao09/AI-Agentic-Mar28",
+  "categories": [
+    "productivity",
+    "ai-agent",
+    "shopping",
+    "email"
+  ],
+  "keywords": [
+    "gmail",
+    "amazon",
+    "doordash",
+    "google-adk",
+    "gemini",
+    "second-brain",
+    "autonomous-agent"
+  ]
 }

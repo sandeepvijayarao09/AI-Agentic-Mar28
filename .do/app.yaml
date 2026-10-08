@@ -3,7 +3,7 @@ region: sfo
 services:
   - name: backend
     github:
-      repo: sandeepvijayarao09/Agentic-Second-Brain
+      repo: sandeepvijayarao09/AI-Agentic-Mar28
       branch: main
       deploy_on_push: true
     source_dir: /
@@ -37,7 +37,7 @@ services:
         value: "${APP_URL}/auth/gmail/callback"
   - name: frontend
     github:
-      repo: sandeepvijayarao09/Agentic-Second-Brain
+      repo: sandeepvijayarao09/AI-Agentic-Mar28
       branch: main
       deploy_on_push: true
     source_dir: /frontend

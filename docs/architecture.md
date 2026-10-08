@@ -27,7 +27,7 @@
 ## ADR-003: Railtrack for Agent Orchestration
 
 **Date:** 2026-03-28
-**Status:** Under investigation
+**Status:** Superseded by ADR-005
 
 **Decision:** Use Railtrack as the agent building and orchestration infrastructure.
 
@@ -43,3 +43,14 @@
 **Decision:** Deploy on DigitalOcean App Platform with Managed Postgres and Spaces (object storage).
 
 **Why:** Simple pricing, good CLI tooling (`doctl`), App Platform handles containers without K8s complexity.
+
+---
+
+## ADR-005: Google ADK for Agent Orchestration
+
+**Date:** 2026-03-29
+**Status:** Accepted
+
+**Decision:** Replace Railtracks with Google ADK (`google-adk`). A master step routes each request to Food, Shopping, Email, Profile or General sub-agents, chains two when needed, and runs a Verifier agent on the result.
+
+**Why:** Keeps the whole stack on Google (Gemini, Gmail, ADK) and gives native Gemini tool calling without an extra adapter layer.
