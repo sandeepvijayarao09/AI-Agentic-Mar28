@@ -52,19 +52,17 @@ def validate_favourites() -> dict:
                 restaurant_counts[order.restaurant_name] += 1
                 platform_map[order.restaurant_name] = order.platform
 
-        item_counts = Counter()
-        for order in food_orders:
-            for item in (order.items or []):
-                name = item.get("name", "") if isinstance(item, dict) else str(item)
-                if name:
-                    item_counts[name] += item.get("qty", 1) if isinstance(item, dict) else 1
+        def count_items(orders):
+            counts = Counter()
+            for order in orders:
+                for item in (order.items or []):
+                    name = item.get("name", "") if isinstance(item, dict) else str(item)
+                    if name:
+                        counts[name] += item.get("qty", 1) if isinstance(item, dict) else 1
+            return counts
 
-        shopping_orders = db.query(Shopping).all()
-        for order in shopping_orders:
-            for item in (order.items or []):
-                name = item.get("name", "") if isinstance(item, dict) else str(item)
-                if name:
-                    item_counts[name] += item.get("qty", 1) if isinstance(item, dict) else 1
+        item_counts = count_items(food_orders)
+        product_counts = count_items(db.query(Shopping).all())
 
         updated, added, removed = 0, 0, 0
 
@@ -78,21 +76,24 @@ def validate_favourites() -> dict:
                 db.add(UserFavourite(category="restaurant", name=restaurant, platform=platform_map.get(restaurant, ""), order_count=count))
                 added += 1
 
-        for item_name, count in item_counts.most_common(20):
-            existing = db.query(UserFavourite).filter(UserFavourite.name == item_name, UserFavourite.category == "food_item").first()
-            if existing:
-                if existing.order_count != count:
-                    existing.order_count = count
-                    updated += 1
-            else:
-                db.add(UserFavourite(category="food_item", name=item_name, order_count=count))
-                added += 1
+        for category, counts in (("food_item", item_counts), ("product", product_counts)):
+            for item_name, count in counts.most_common(20):
+                existing = db.query(UserFavourite).filter(UserFavourite.name == item_name, UserFavourite.category == category).first()
+                if existing:
+                    if existing.order_count != count:
+                        existing.order_count = count
+                        updated += 1
+                else:
+                    db.add(UserFavourite(category=category, name=item_name, order_count=count))
+                    added += 1
 
         all_favs = db.query(UserFavourite).all()
         for fav in all_favs:
             if fav.category == "restaurant" and fav.name not in restaurant_counts:
                 db.delete(fav); removed += 1
             elif fav.category == "food_item" and fav.name not in item_counts:
+                db.delete(fav); removed += 1
+            elif fav.category == "product" and fav.name not in product_counts:
                 db.delete(fav); removed += 1
 
         db.commit()

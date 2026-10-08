@@ -116,34 +116,35 @@ def _update_favourites(db: DBSession):
                 notes=f"Ordered {count} times",
             ))
 
-    # Count item frequency from all orders
-    item_counts = Counter()
+    # Count item frequency: food items and shopping products are ranked separately
+    food_items = Counter()
     for order in food_orders:
         for item in (order.items or []):
             name = item.get("name", "")
             if name:
-                item_counts[name] += item.get("qty", 1)
+                food_items[name] += item.get("qty", 1)
 
-    shopping_orders = db.query(Shopping).all()
-    for order in shopping_orders:
+    products = Counter()
+    for order in db.query(Shopping).all():
         for item in (order.items or []):
             name = item.get("name", "")
             if name:
-                item_counts[name] += item.get("qty", 1)
+                products[name] += item.get("qty", 1)
 
-    for item_name, count in item_counts.most_common(15):
-        existing = db.query(UserFavourite).filter(
-            UserFavourite.name == item_name,
-            UserFavourite.category == "food_item",
-        ).first()
-        if existing:
-            existing.order_count = count
-        else:
-            db.add(UserFavourite(
-                category="food_item",
-                name=item_name,
-                order_count=count,
-                notes=f"Ordered {count} times",
-            ))
+    for category, counts in (("food_item", food_items), ("product", products)):
+        for item_name, count in counts.most_common(15):
+            existing = db.query(UserFavourite).filter(
+                UserFavourite.name == item_name,
+                UserFavourite.category == category,
+            ).first()
+            if existing:
+                existing.order_count = count
+            else:
+                db.add(UserFavourite(
+                    category=category,
+                    name=item_name,
+                    order_count=count,
+                    notes=f"Ordered {count} times",
+                ))
 
     db.commit()
