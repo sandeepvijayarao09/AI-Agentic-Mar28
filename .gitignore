@@ -56,5 +56,5 @@ second_brain.db
 *.tsbuildinfo
 
 # Runtime output (Playwright debug screenshots)
-runtime/
-screenshots/
+/runtime/
+/screenshots/
