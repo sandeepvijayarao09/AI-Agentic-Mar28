@@ -7,6 +7,7 @@ Uses regex first, falls back to Gemini for complex emails.
 import re
 import json
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from typing import Optional
 
 
@@ -99,10 +100,11 @@ def extract_items(text: str) -> list[dict]:
     seen = set()
 
     # Pattern 1: "1x Product Name $price" or "1x Product Name - $price"
-    for match in re.finditer(r"(\d+)\s*x\s+(.+?)\s*[-–]?\s*\$?([\d.]+)", text):
+    # The price must carry a "$" so digits inside the name ("65W", "24 Pack") aren't read as the price.
+    for match in re.finditer(r"(\d+)\s*x\s+(.+?)\s*[-–]?\s*\$\s*([\d,]+(?:\.\d{1,2})?)", text):
         name = match.group(2).strip().rstrip("-– ")
         if name and name not in seen and len(name) > 2 and len(name) < 120:
-            items.append({"name": name, "qty": int(match.group(1)), "price": float(match.group(3))})
+            items.append({"name": name, "qty": int(match.group(1)), "price": float(match.group(3).replace(",", ""))})
             seen.add(name)
 
     # Pattern 2: "Product Name - $price" (no qty prefix)
@@ -151,7 +153,18 @@ def extract_restaurant(email: dict) -> str:
 
 
 def parse_date(text: str) -> Optional[datetime]:
-    """Extract date from email text or headers."""
+    """Extract date from email text or headers.
+
+    Handles RFC 2822 "Date:" headers ("Sat, 21 Mar 2026 19:42:10 -0700", kept as
+    the sender's local date) as well as dates written in the body.
+    """
+    if text:
+        try:
+            parsed = parsedate_to_datetime(text.strip())
+            if parsed:
+                return parsed.replace(tzinfo=None)
+        except (TypeError, ValueError, IndexError):
+            pass
     patterns = [
         r"(\w+ \d{1,2},?\s*\d{4})",
         r"(\d{1,2}/\d{1,2}/\d{2,4})",
