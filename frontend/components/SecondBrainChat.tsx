@@ -56,7 +56,7 @@ export function SecondBrainChat() {
           <div>
             <h1 className="text-xl font-bold text-white">Agentic Second Brain</h1>
             <p className="text-xs text-gray-400">
-              Powered by Railtracks + Gemini + DigitalOcean + assistant-ui
+              Powered by Google ADK + Gemini
             </p>
           </div>
         </div>
